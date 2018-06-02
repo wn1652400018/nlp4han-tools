@@ -1,10 +1,8 @@
 package com.lc.nlp4han.tools.pst;
 
-import java.math.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
 
