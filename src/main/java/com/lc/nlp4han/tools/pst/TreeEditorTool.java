@@ -34,7 +34,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-
+import javax.swing.JTextArea;
 import javax.swing.plaf.ColorUIResource;
 
 import edu.stanford.nlp.ling.CoreAnnotations;
@@ -49,8 +49,8 @@ public class TreeEditorTool {
 	private TreePanel t = new TreePanel();
 	private JScrollPane paintjsp;
 	private JPanel editPanel = new JPanel();
-	private TextArea editArea0 = new TextArea(2, 80);
-	private TextArea editArea = new TextArea(8, 80);
+	private JTextArea editArea0 = new JTextArea(2, 80);
+	private JTextArea editArea = new JTextArea(8, 80);
 	private JButton start = new JButton("生成结构树");
 	private JButton treeToText = new JButton("导出到文件");
 	private JButton rePaint = new JButton("重画结构树");
@@ -104,10 +104,12 @@ public class TreeEditorTool {
 		JMenuItem jmi_open = new JMenuItem("打开");
 		JMenuItem jmi_save = new JMenuItem("保存");
 		JMenuItem jmi_saveAs = new JMenuItem("另存为");
+		
 
 		JMenu charset = new JMenu("编码");
 		JMenuItem jmi_gbk = new JMenuItem("gbk");
 		JMenuItem jmi_utf_8 = new JMenuItem("utf-8");
+		jmi_gbk.setBackground(Color.GREEN);
 		jm.add(jmi_new);
 		jm.add(jmi_open);
 		jm.add(jmi_save);
@@ -590,6 +592,8 @@ public class TreeEditorTool {
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				charsetName = "gbk";
+				jmi_utf_8.setBackground((Color) new ColorUIResource(238, 238, 238));
+				jmi_gbk.setBackground(Color.green);
 			}
 		});
 		jmi_utf_8.addActionListener(new ActionListener() {
@@ -598,6 +602,8 @@ public class TreeEditorTool {
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				charsetName = "utf-8";
+				jmi_gbk.setBackground((Color) new ColorUIResource(238, 238, 238));
+				jmi_utf_8.setBackground(Color.GREEN);
 			}
 		});
 
