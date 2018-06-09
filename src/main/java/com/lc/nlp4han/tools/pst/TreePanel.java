@@ -21,6 +21,8 @@ import javax.swing.plaf.ColorUIResource;
 
 public class TreePanel extends JPanel
 {
+	private static final long serialVersionUID = 1L;
+	
 	private Vector<TreePanelNode> nodes;
 	private ArrayList<TreePanelNode> treeLists;
 	private TreeAtTxt treeAtTxt;

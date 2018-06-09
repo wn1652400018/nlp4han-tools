@@ -3,7 +3,6 @@ package com.lc.nlp4han.tools.pst;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.TextArea;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -44,6 +43,13 @@ import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.util.CoreMap;
 
+/**
+ * 短语结构树标注工具
+ * 
+ * 可以利用StanfordCoreNLP生成初步标注结果
+ * 
+ *
+ */
 public class TreeEditorTool {
 	private JFrame f = new JFrame("未命名.txt" + "[ " + 1 + " / " + 1 + " ]");
 	private TreePanel t = new TreePanel();

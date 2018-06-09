@@ -11,8 +11,11 @@ public class TreePanelNode
 	private Vector<TreePanelNode> children;
 	private TreePanelNode parent;
 	private TreePanelNode root;
+	
 	private int x, y, width, height;
+	
 	private Object value;
+	
 	private double angle;// 该节点与父节点之间的“夹角”，根节点不用计算
 
 	// 测试用构造函数
@@ -39,7 +42,6 @@ public class TreePanelNode
 
 	/*
 	 *
-	 * 
 	 * 判断树的叶子节点是否均没有兄弟节点(在导出括号表达式时不允许叶子节点有兄弟节点) 若树上只有两个节点，则该树也不符合条件
 	 */
 	public boolean examTheTree()
@@ -475,12 +477,14 @@ public class TreePanelNode
 			root.setWidth(rootWidth);
 		}
 		else
-		{// 该root是叶子节点
+		{
+			// 该root是叶子节点
 			root.setX(80 * root.getIndexOfLeaf(root));
 			root.setY(80 * root.height());
 			root.setHeight(30);
 			root.setWidth(60);
 		}
+		
 		return root;
 	}
 
