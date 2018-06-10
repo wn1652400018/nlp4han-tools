@@ -31,18 +31,22 @@ public class TreePanel extends JPanel
 	private int selectedNodes = -1;// 默认表示没有选中节点
 	private ArrayList<Integer> selectedALines = new ArrayList<Integer>();
 	private int selectedALine = -1;// 默认没有选中线。selectedALine表示 被选中线的箭头指向的节点 与其父节点之间的连线
+	
 	private int tempX;// 记录鼠标点击时的坐标，或者记录拖动时鼠标的上一个坐标
 	private int tempY;// 记录鼠标点击时的坐标，或者记录拖动时鼠标的上一个坐标
 	private int mouseX; // 表示任意时刻鼠标的位置
 	private int mouseY;// 表示任意时刻鼠标的位置
+	
 	private int editingNode = -1;// 表示被编辑的节点的序号，默认是没有要编辑的节点
 	private int parentOfAddingNode = -1;// 表示要添加节点的父亲节点，默认为-1即不添加节点
 	private int[] combinedNodes = { -1, -1 };// 表示将要链接的两个节点
 	private int count = -1;// 用来表示添加到数组combinedNodes中的位置，当某次没有点击到节点时重新调整为-1
+	
 	private int XBeforeDrag;// 用来表示做一次连贯的拖拽事件之前鼠标的位置，连贯是指拖拽过程中没有释放鼠标
 	private int YBeforeDrag;// 用来表示做一次连贯的拖拽事件之前鼠标的位置
+	
 	private boolean add_Clicked = false, delete_Clicked = false, combine_Clicked = false, selectRoot_Clicked = false;// add,delete,modify,combine按钮的状态
-	private JButton add, delete, combine, selectRoot;
+	private JButton addButton, deleteButton, combineButton, selectRootButton;
 
 	public TreePanel()
 	{
@@ -88,7 +92,7 @@ public class TreePanel extends JPanel
 						{// alt加点击i节点,被选中节点会增加一个子节点
 							parentOfAddingNode = selectedNodes;
 							add_Clicked = false;
-							add.setBackground((Color) new ColorUIResource(238, 238, 238));
+							addButton.setBackground((Color) new ColorUIResource(238, 238, 238));
 							// add.setBackground(Color.YELLOW);
 						}
 						if (parentOfAddingNode != i)
@@ -103,7 +107,7 @@ public class TreePanel extends JPanel
 							treeLists.set(indexOfPreRoot, nodes.get(selectedNodes).changeRoot());
 							nodes = TreePanelNode.nodesOfAllTrees(treeLists);
 							selectRoot_Clicked = false;
-							selectRoot.setBackground((Color) new ColorUIResource(238, 238, 238));
+							selectRootButton.setBackground((Color) new ColorUIResource(238, 238, 238));
 							selectedNodes = -1;
 							changeStatus_PanelModified();
 							repaint();
@@ -247,7 +251,7 @@ public class TreePanel extends JPanel
 					{
 						parentOfAddingNode = -2;
 						add_Clicked = false;
-						add.setBackground((Color) new ColorUIResource(238, 238, 238));
+						addButton.setBackground((Color) new ColorUIResource(238, 238, 238));
 					}
 				}
 
@@ -339,10 +343,10 @@ public class TreePanel extends JPanel
 					selectRoot_Clicked = false;
 					initCombineNodes();
 					// System.out.println("308"+1313465465);
-					add.setBackground((Color) new ColorUIResource(238, 238, 238));
-					delete.setBackground((Color) new ColorUIResource(238, 238, 238));
-					combine.setBackground((Color) new ColorUIResource(238, 238, 238));
-					selectRoot.setBackground((Color) new ColorUIResource(238, 238, 238));
+					addButton.setBackground((Color) new ColorUIResource(238, 238, 238));
+					deleteButton.setBackground((Color) new ColorUIResource(238, 238, 238));
+					combineButton.setBackground((Color) new ColorUIResource(238, 238, 238));
+					selectRootButton.setBackground((Color) new ColorUIResource(238, 238, 238));
 
 				}
 				if (ke.getKeyCode() == KeyEvent.VK_DELETE)
@@ -353,10 +357,10 @@ public class TreePanel extends JPanel
 					selectRoot_Clicked = false;
 					initCombineNodes();
 					// System.outprintln("308"+1313465465);
-					add.setBackground((Color) new ColorUIResource(238, 238, 238));
-					delete.setBackground((Color) new ColorUIResource(238, 238, 238));
-					combine.setBackground((Color) new ColorUIResource(238, 238, 238));
-					selectRoot.setBackground((Color) new ColorUIResource(238, 238, 238));
+					addButton.setBackground((Color) new ColorUIResource(238, 238, 238));
+					deleteButton.setBackground((Color) new ColorUIResource(238, 238, 238));
+					combineButton.setBackground((Color) new ColorUIResource(238, 238, 238));
+					selectRootButton.setBackground((Color) new ColorUIResource(238, 238, 238));
 				}
 				// System.out.println("+++++");
 				if (selectedNodes != -1 && ke.getKeyCode() == KeyEvent.VK_DELETE)
@@ -551,32 +555,32 @@ public class TreePanel extends JPanel
 
 	public JButton getAdd()
 	{
-		return add;
+		return addButton;
 	}
 
 	public void setAdd(JButton add)
 	{
-		this.add = add;
+		this.addButton = add;
 	}
 
 	public JButton getDelete()
 	{
-		return delete;
+		return deleteButton;
 	}
 
 	public void setDelete(JButton delete)
 	{
-		this.delete = delete;
+		this.deleteButton = delete;
 	}
 
 	public JButton getCombine()
 	{
-		return combine;
+		return combineButton;
 	}
 
 	public void setCombine(JButton combine)
 	{
-		this.combine = combine;
+		this.combineButton = combine;
 	}
 
 	public boolean isSelectRoot_Clicked()
@@ -591,12 +595,12 @@ public class TreePanel extends JPanel
 
 	public JButton getSelectRoot()
 	{
-		return selectRoot;
+		return selectRootButton;
 	}
 
 	public void setSelectRoot(JButton selectRoot)
 	{
-		this.selectRoot = selectRoot;
+		this.selectRootButton = selectRoot;
 	}
 
 	public int getSelectedNodes()

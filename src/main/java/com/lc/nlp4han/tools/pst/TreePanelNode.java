@@ -121,7 +121,6 @@ public class TreePanelNode
 	}
 
 	// 给定一个节点，将该组节点的子节点按照其angle的大小从高到低排列
-
 	public Vector<TreePanelNode> sortByAngle()
 	{
 		int length = children.size();
@@ -519,20 +518,15 @@ public class TreePanelNode
 		return treeLists;
 	}
 
-	/*
-	 * 
-	 * 
-	 * 将一个括号表达式转化为一颗树
-	 * 
-	 * 
-	 * 
-	 */
+
 	// 将括号表达式转化为树，并分配位置和初始化角度
 	public ArrayList<TreePanelNode> fromTextToTree(String strWithFormat)
 	{
 		if (toOneLine(strWithFormat).trim().length() == 0)
 			return null;
+		
 		ArrayList<TreePanelNode> treeLists = repaintTreeLists(getTree(stringToList(format(toOneLine(strWithFormat)))));
+		
 		for (TreePanelNode tree : treeLists)
 		{
 			for (TreePanelNode node : allNodes(tree))
@@ -653,6 +647,7 @@ public class TreePanelNode
 
 			}
 		}
+		
 		return str;
 	}
 
@@ -889,16 +884,9 @@ public class TreePanelNode
 
 	}
 
-	/*
-	 * 
-	 * 
-	 * 
-	 * 将树转化为括号表达式
-	 */
 	// 将树转化为一个字符串数组，其中包括添加的用于换行和空格的字符串
 	public LinkedList<String> changeIntoText()
 	{
-
 		LinkedList<String> tree = new LinkedList<String>();
 		if (treeToText(this, tree) != -1)
 		{// 表示不是空树
