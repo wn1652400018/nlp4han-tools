@@ -116,6 +116,7 @@ public class TreePanelNode
 					}
 				}
 			}
+			
 			return nodes;
 		}
 	}
@@ -301,26 +302,26 @@ public class TreePanelNode
 		}
 	}
 
-	/*
-	 * 
-	 * 
-	 * 判断该节点与其父节点的连线是否被选中
-	 * 
-	 */
-	public boolean isLineSelected2(int X1, int Y1, int X2, int Y2)
-	{// 利用矩形
-		if (this == this.root)
-			return false;
-		if (Math.min(X1, X2) <= Math.max(x + width / 2, parent.x + parent.width / 2)
-				&& Math.max(X1, X2) >= Math.min(x + width / 2, parent.x + parent.width / 2)
-				&& Math.min(Y1, Y2) <= Math.max(y, parent.y + parent.height)
-				&& Math.max(Y1, Y2) >= Math.min(y, parent.y + parent.height))
-		{
-			return true;
-		}
-		else
-			return false;
-	}
+//	/*
+//	 * 
+//	 * 
+//	 * 判断该节点与其父节点的连线是否被选中
+//	 * 
+//	 */
+//	public boolean isLineSelected2(int X1, int Y1, int X2, int Y2)
+//	{// 利用矩形
+//		if (this == this.root)
+//			return false;
+//		if (Math.min(X1, X2) <= Math.max(x + width / 2, parent.x + parent.width / 2)
+//				&& Math.max(X1, X2) >= Math.min(x + width / 2, parent.x + parent.width / 2)
+//				&& Math.min(Y1, Y2) <= Math.max(y, parent.y + parent.height)
+//				&& Math.max(Y1, Y2) >= Math.min(y, parent.y + parent.height))
+//		{
+//			return true;
+//		}
+//		else
+//			return false;
+//	}
 
 	public boolean isLineSelected(int X1, int Y1, int X2, int Y2)
 	{// 两个线段有交点
@@ -470,6 +471,7 @@ public class TreePanelNode
 			{
 				rootX += child.getX();
 			}
+			
 			root.setX(rootX / countOfChild);
 			root.setY(80 * root.height());
 			root.setHeight(rootHeight);
@@ -544,65 +546,62 @@ public class TreePanelNode
 		return str.replaceAll("\n", "").replaceAll("\r", "");
 	}
 
-	// 处理括号表达式类似(ROOT (IP (NP (NT 去年 )) (NP (NR 耐克 )) (VP (PP (P 在) (NP (NP (DNP (NP
-	// (NR 曼哈顿)) (DEG 的)) (NP (NN 潮流) (NN 聚集地))) (NP (NR 苏荷区)))) (VP (VV 开) (AS 了)
-	// (NP (QP (CD 一) (CLP (M 家))) (NP (NN 新店))))) (PU 。)))
-	// 处理
-	// 结果(ROOT(IP(NP(NT(去年)))(NP(NR(耐克)))(VP(PP(P(在))(NP(NP(DNP(NP(NR(曼哈顿)))(DEG(的)))(NP(NN(潮流))(NN(聚集地))))(NP(NR(苏荷区)))))(VP(VV(开))(AS(了))(NP(QP(CD(一))(CLP(M(家))))(NP(NN(新店))))))(PU(。))))
-	// 格式化单行括号表达式，消除其中空格
-	public String format2(String str)
-	{
-		str = str.trim();
-		for (int i = 0; i < str.length(); i++)
-		{
-			if (str.charAt(i) == ' ')
-			{
-				if ((str.charAt(i - 1) == '(') || (str.charAt(i - 1) == ')') || str.charAt(i + 1) == '('
-						|| str.charAt(i + 1) == ')' || str.charAt(i + 1) == ' ')
-				{
-					str = str.substring(0, i) + str.substring(i + 1, str.length());
-					i--;
-				}
-				else if ((str.substring(i + 1).indexOf('(') != -1) && (str.substring(i + 1).indexOf(')') != -1)
-						&& (str.substring(i + 1).indexOf(')') < str.substring(i + 1).indexOf('(')))
-				{// 排除描述语句中可能出现的空格
-					System.out.println("i=" + i);
-					System.out.println(")=" + str.substring(i + 1).indexOf(')'));
-					System.out.println("(=" + str.substring(i + 1).indexOf('('));
-					System.out.println("");
-					str = str.replaceFirst(" ", "(");
-					for (int j = i + 1; j < str.length(); j++)
-					{
-						if (str.charAt(j) == ' ')
-						{
-							str = str.replaceFirst(" ", ")");
-							i = j;
-							break;
-						}
-						else if (str.charAt(j) == ')')
-						{
-							str = str.substring(0, j) + ")" + str.substring(j, str.length());
-							i = j;
-							break;
-						}
-					}
-				}
-				else
-				{
-					System.out.println("i=" + i);
-					System.out.println(")=" + str.substring(i + 1).indexOf(')'));
-					System.out.println("(=" + str.substring(i + 1).indexOf('('));
-					System.out.println("");
+//	// 处理括号表达式类似(ROOT (IP (NP (NT 去年 )) (NP (NR 耐克 )) (VP (PP (P 在) (NP (NP (DNP (NP
+//	// (NR 曼哈顿)) (DEG 的)) (NP (NN 潮流) (NN 聚集地))) (NP (NR 苏荷区)))) (VP (VV 开) (AS 了)
+//	// (NP (QP (CD 一) (CLP (M 家))) (NP (NN 新店))))) (PU 。)))
+//	// 处理
+//	// 结果(ROOT(IP(NP(NT(去年)))(NP(NR(耐克)))(VP(PP(P(在))(NP(NP(DNP(NP(NR(曼哈顿)))(DEG(的)))(NP(NN(潮流))(NN(聚集地))))(NP(NR(苏荷区)))))(VP(VV(开))(AS(了))(NP(QP(CD(一))(CLP(M(家))))(NP(NN(新店))))))(PU(。))))
+//	// 格式化单行括号表达式，消除其中空格
+//	public String format2(String str)
+//	{
+//		str = str.trim();
+//		for (int i = 0; i < str.length(); i++)
+//		{
+//			if (str.charAt(i) == ' ')
+//			{
+//				if ((str.charAt(i - 1) == '(') || (str.charAt(i - 1) == ')') || str.charAt(i + 1) == '('
+//						|| str.charAt(i + 1) == ')' || str.charAt(i + 1) == ' ')
+//				{
+//					str = str.substring(0, i) + str.substring(i + 1, str.length());
+//					i--;
+//				}
+//				else if ((str.substring(i + 1).indexOf('(') != -1) && (str.substring(i + 1).indexOf(')') != -1)
+//						&& (str.substring(i + 1).indexOf(')') < str.substring(i + 1).indexOf('(')))
+//				{// 排除描述语句中可能出现的空格
+//					System.out.println("i=" + i);
+//					System.out.println(")=" + str.substring(i + 1).indexOf(')'));
+//					System.out.println("(=" + str.substring(i + 1).indexOf('('));
+//					System.out.println("");
+//					str = str.replaceFirst(" ", "(");
+//					for (int j = i + 1; j < str.length(); j++)
+//					{
+//						if (str.charAt(j) == ' ')
+//						{
+//							str = str.replaceFirst(" ", ")");
+//							i = j;
+//							break;
+//						}
+//						else if (str.charAt(j) == ')')
+//						{
+//							str = str.substring(0, j) + ")" + str.substring(j, str.length());
+//							i = j;
+//							break;
+//						}
+//					}
+//				}
+//				else
+//				{
+//					System.out.println("i=" + i);
+//					System.out.println(")=" + str.substring(i + 1).indexOf(')'));
+//					System.out.println("(=" + str.substring(i + 1).indexOf('('));
+//					System.out.println("");
+//
+//				}
+//			}
+//		}
+//		return str;
+//	}
 
-				}
-			}
-		}
-		return str;
-	}
-
-	// 处理括号表达式 类似(ROOT (IP (NP (NT 去年 )) (NP (NR 耐克 )) (VP (PP (P 在) (NP (NP (DNP
-	// (NP (NR 曼哈顿)) (DEG 的)) (NP (NN 潮流) (NN 聚集地))) (NP (NR 苏荷区)))) (VP (VV 开) (AS
-	// 了) (NP (QP (CD 一) (CLP (M 家))) (NP (NN 新店))))) (PU 。)))
 	public String format(String str)
 	{
 		str = str.trim();
@@ -717,90 +716,90 @@ public class TreePanelNode
 		return list;
 	}
 
-	public ArrayList<String> stringToList2(String treeStr)
-	{
+//	public ArrayList<String> stringToList2(String treeStr)
+//	{
+//
+//		ArrayList<String> parts = new ArrayList<String>();
+//		for (int index = 0; index < treeStr.length(); ++index)
+//		{
+//			if (treeStr.charAt(index) == '(' || treeStr.charAt(index) == ')' || treeStr.charAt(index) == ' ')
+//			{
+//				parts.add(Character.toString(treeStr.charAt(index)));
+//			}
+//			else
+//			{
+//				for (int i = index + 1; i < treeStr.length(); ++i)
+//				{
+//					if (treeStr.charAt(i) == '(' || treeStr.charAt(i) == ')' || treeStr.charAt(i) == ' ')
+//					{
+//						parts.add(treeStr.substring(index, i));
+//						index = i - 1;
+//						break;
+//					}
+//				}
+//			}
+//		}
+//		return parts;
+//	}
 
-		ArrayList<String> parts = new ArrayList<String>();
-		for (int index = 0; index < treeStr.length(); ++index)
-		{
-			if (treeStr.charAt(index) == '(' || treeStr.charAt(index) == ')' || treeStr.charAt(index) == ' ')
-			{
-				parts.add(Character.toString(treeStr.charAt(index)));
-			}
-			else
-			{
-				for (int i = index + 1; i < treeStr.length(); ++i)
-				{
-					if (treeStr.charAt(i) == '(' || treeStr.charAt(i) == ')' || treeStr.charAt(i) == ' ')
-					{
-						parts.add(treeStr.substring(index, i));
-						index = i - 1;
-						break;
-					}
-				}
-			}
-		}
-		return parts;
-	}
-
-	// 将括号表达式的list转化为一棵树,树中节点的angle和位置信息没有确定 (NP(NN(小篮球))(NN(联赛))(NN(启动))(NN(仪式)))
-	public ArrayList<TreePanelNode> getTree2(ArrayList<String> list)
-	{
-		if (list.isEmpty())
-			return null;
-		ArrayList<TreePanelNode> treeLists = new ArrayList<TreePanelNode>();
-		Stack<TreePanelNode> words = new Stack<TreePanelNode>();
-
-		int count = 0;// 计算生成树中一共有多少节点
-
-		int len = list.size();
-		for (int i = 0; i < len; i++)
-		{// 扫描list，
-			if (list.get(i).equals("("))// 扫描到(
-				continue;
-			else
-			{
-				if (!(list.get(i).equals(")")))
-				{// 扫描到word
-					if (words.isEmpty())
-					{// 扫描到第一个word，即根节点的value
-						TreePanelNode root = new TreePanelNode();
-						root.setRoot(root);
-						root.setParent(null);
-						root.setChildren(new Vector<TreePanelNode>());
-						root.setValue(list.get(i));
-						words.push(root);
-						treeLists.add(root);
-						count++;
-					}
-					else
-					{// 扫描到后面的word
-						TreePanelNode child = new TreePanelNode();
-						child.setRoot(words.peek().getRoot());
-						child.setParent(words.peek());
-						words.peek().getChildren().add(child);
-						child.setChildren(new Vector<TreePanelNode>());
-						child.setValue(list.get(i));
-						words.push(child);
-						count++;
-					}
-				}
-				else
-				{// 扫描到 )
-					if (!words.isEmpty())
-					{
-						words.pop();
-					}
-				}
-
-			}
-		}
-		if (words.isEmpty() && count != 0)
-			return treeLists;
-		else
-			return null;
-
-	}
+//	// 将括号表达式的list转化为一棵树,树中节点的angle和位置信息没有确定 (NP(NN(小篮球))(NN(联赛))(NN(启动))(NN(仪式)))
+//	public ArrayList<TreePanelNode> getTree2(ArrayList<String> list)
+//	{
+//		if (list.isEmpty())
+//			return null;
+//		ArrayList<TreePanelNode> treeLists = new ArrayList<TreePanelNode>();
+//		Stack<TreePanelNode> words = new Stack<TreePanelNode>();
+//
+//		int count = 0;// 计算生成树中一共有多少节点
+//
+//		int len = list.size();
+//		for (int i = 0; i < len; i++)
+//		{// 扫描list，
+//			if (list.get(i).equals("("))// 扫描到(
+//				continue;
+//			else
+//			{
+//				if (!(list.get(i).equals(")")))
+//				{// 扫描到word
+//					if (words.isEmpty())
+//					{// 扫描到第一个word，即根节点的value
+//						TreePanelNode root = new TreePanelNode();
+//						root.setRoot(root);
+//						root.setParent(null);
+//						root.setChildren(new Vector<TreePanelNode>());
+//						root.setValue(list.get(i));
+//						words.push(root);
+//						treeLists.add(root);
+//						count++;
+//					}
+//					else
+//					{// 扫描到后面的word
+//						TreePanelNode child = new TreePanelNode();
+//						child.setRoot(words.peek().getRoot());
+//						child.setParent(words.peek());
+//						words.peek().getChildren().add(child);
+//						child.setChildren(new Vector<TreePanelNode>());
+//						child.setValue(list.get(i));
+//						words.push(child);
+//						count++;
+//					}
+//				}
+//				else
+//				{// 扫描到 )
+//					if (!words.isEmpty())
+//					{
+//						words.pop();
+//					}
+//				}
+//
+//			}
+//		}
+//		if (words.isEmpty() && count != 0)
+//			return treeLists;
+//		else
+//			return null;
+//
+//	}
 
 	/*
 	 * 将括号表达式的list转化为一棵树,树中节点的angle和位置信息没有确定 排除括号表达式上面的句子 ,如：
@@ -1037,96 +1036,96 @@ public class TreePanelNode
 		}
 	}
 
-	// 将树的节点插入到list中，并返回根节点在list中的索引。包括换行符和空格，便于将list输出到文本中成为一个多行有格式的括号表达式。
-	public int treeToText2(TreePanelNode root, LinkedList<String> listOfTree)
-	{// 该函数表示将root为根的树排列好在list中，并返回root节点在list中的索引，同时判断该根节点是否有儿子节点，
-		// 如果该节点有儿子节点且儿子节点不是叶子节点就在list中root的'('前插入换行符和一定的空格组成的字符串。
-		if (root == null)
-			return -1;
-		int indexOfFirstChild = -1;
-		int indexOfRoot = -1;
-		if (root.getChildren().size() != 0)
-		{
-			int count = 0;
-			for (; count < root.getChildren().size();)
-			{// 把所有以root的儿子为根节点的子树插入到listOfTree中去，并返回第一个儿子在listOfTree中的索引
-				count++;
-				if (count == 1)
-				{
-					indexOfFirstChild = treeToText(root.getChildren().get(count - 1), listOfTree);
-				}
-				else
-				{
-					treeToText(root.getChildren().get(count - 1), listOfTree);
-				}
-			}
-			// 处理根节点
-			// System.out.println("indexOfFirst===="+indexOfFirstChild);
-			// 判断root的第一个孩子节点是否有儿子，即判断list中root的第一个孩子节点前是否添加了一个由换行符和空格组成的字符串
-			if (root.getChildren().get(0).getChildren().size() == 0
-					|| root.getChildren().get(0).getChildren().get(0).getChildren().size() == 0)
-			{// if成立表示root的第一个孩子节点没有儿子，或者root的第一个孩子节点的孩子是叶子节点，root的第一个孩子节点前面没有添加调整格式的字符串
-				// 判断该root节点的儿子节点是否是叶子节点，(最外层if已经判断出该root节点有儿子)，即判断root节点前面是否用添加格式字符串
-				if (root.getChildren().get(0).getChildren().size() == 0)
-				{// 是叶子节点，root节点前面不用添加格式字符串
-					listOfTree.add(indexOfFirstChild - 1, root.getValue().toString());
-					listOfTree.add(indexOfFirstChild - 1, "(");// root的index和第一个孩子返回的index大小相同
-					listOfTree.add(")");
-					indexOfRoot = indexOfFirstChild;
-				}
-				else
-				{// 不是叶子节点，root节点前面要添加格式字符串
-					listOfTree.add(indexOfFirstChild - 1, root.getValue().toString());
-					listOfTree.add(indexOfFirstChild - 1, "(");// root的index和第一个孩子返回的index大小相同
-					String format = "";
-					for (int i = 0; i < root.height(); i++)
-					{
-						format = format + " ";
-						format = format + " ";
-					}
-					listOfTree.add(indexOfFirstChild - 1, "\r\n" + format);
-					listOfTree.add(")");
-					indexOfRoot = indexOfFirstChild + 1;
-				}
-			}
-			else
-			{// root的第一个孩子节点前面添加了调整格式的字符串
-				// 判断该root节点的儿子节点是否是叶子节点，(最外层if已经判断出该root节点有儿子)，即判断root节点前面是否用添加格式字符串
-				if (root.getChildren().get(0).getChildren().size() == 0)
-				{// 是叶子节点，root节点前面不用添加格式字符串
-					listOfTree.add(indexOfFirstChild - 2, root.getValue().toString());
-					listOfTree.add(indexOfFirstChild - 2, "(");// root的index和第一个孩子返回的index大小相同
-					listOfTree.add(")");
-					indexOfRoot = indexOfFirstChild - 1;
-				}
-				else
-				{// 不是叶子节点,root节点前面要添加格式字符串
-					listOfTree.add(indexOfFirstChild - 2, root.getValue().toString());
-					listOfTree.add(indexOfFirstChild - 2, "(");// root的index和第一个孩子返回的index大小相同
-					String format = "";
-					for (int i = 0; i < root.height(); i++)
-					{
-						format = format + " ";
-						format = format + " ";
-					}
-					listOfTree.add(indexOfFirstChild - 2, "\r\n" + format);
-					listOfTree.add(")");
-					indexOfRoot = indexOfFirstChild;
-				}
-			}
-
-		}
-		else
-		{// 处理root是叶子节点，结束递归的条件
-			listOfTree.add("(");
-			listOfTree.add(root.getValue().toString());
-			indexOfFirstChild = listOfTree.size() - 1;
-			listOfTree.add(")");
-			indexOfRoot = indexOfFirstChild;
-		}
-
-		return indexOfRoot;
-	}
+//	// 将树的节点插入到list中，并返回根节点在list中的索引。包括换行符和空格，便于将list输出到文本中成为一个多行有格式的括号表达式。
+//	public int treeToText2(TreePanelNode root, LinkedList<String> listOfTree)
+//	{// 该函数表示将root为根的树排列好在list中，并返回root节点在list中的索引，同时判断该根节点是否有儿子节点，
+//		// 如果该节点有儿子节点且儿子节点不是叶子节点就在list中root的'('前插入换行符和一定的空格组成的字符串。
+//		if (root == null)
+//			return -1;
+//		int indexOfFirstChild = -1;
+//		int indexOfRoot = -1;
+//		if (root.getChildren().size() != 0)
+//		{
+//			int count = 0;
+//			for (; count < root.getChildren().size();)
+//			{// 把所有以root的儿子为根节点的子树插入到listOfTree中去，并返回第一个儿子在listOfTree中的索引
+//				count++;
+//				if (count == 1)
+//				{
+//					indexOfFirstChild = treeToText(root.getChildren().get(count - 1), listOfTree);
+//				}
+//				else
+//				{
+//					treeToText(root.getChildren().get(count - 1), listOfTree);
+//				}
+//			}
+//			// 处理根节点
+//			// System.out.println("indexOfFirst===="+indexOfFirstChild);
+//			// 判断root的第一个孩子节点是否有儿子，即判断list中root的第一个孩子节点前是否添加了一个由换行符和空格组成的字符串
+//			if (root.getChildren().get(0).getChildren().size() == 0
+//					|| root.getChildren().get(0).getChildren().get(0).getChildren().size() == 0)
+//			{// if成立表示root的第一个孩子节点没有儿子，或者root的第一个孩子节点的孩子是叶子节点，root的第一个孩子节点前面没有添加调整格式的字符串
+//				// 判断该root节点的儿子节点是否是叶子节点，(最外层if已经判断出该root节点有儿子)，即判断root节点前面是否用添加格式字符串
+//				if (root.getChildren().get(0).getChildren().size() == 0)
+//				{// 是叶子节点，root节点前面不用添加格式字符串
+//					listOfTree.add(indexOfFirstChild - 1, root.getValue().toString());
+//					listOfTree.add(indexOfFirstChild - 1, "(");// root的index和第一个孩子返回的index大小相同
+//					listOfTree.add(")");
+//					indexOfRoot = indexOfFirstChild;
+//				}
+//				else
+//				{// 不是叶子节点，root节点前面要添加格式字符串
+//					listOfTree.add(indexOfFirstChild - 1, root.getValue().toString());
+//					listOfTree.add(indexOfFirstChild - 1, "(");// root的index和第一个孩子返回的index大小相同
+//					String format = "";
+//					for (int i = 0; i < root.height(); i++)
+//					{
+//						format = format + " ";
+//						format = format + " ";
+//					}
+//					listOfTree.add(indexOfFirstChild - 1, "\r\n" + format);
+//					listOfTree.add(")");
+//					indexOfRoot = indexOfFirstChild + 1;
+//				}
+//			}
+//			else
+//			{// root的第一个孩子节点前面添加了调整格式的字符串
+//				// 判断该root节点的儿子节点是否是叶子节点，(最外层if已经判断出该root节点有儿子)，即判断root节点前面是否用添加格式字符串
+//				if (root.getChildren().get(0).getChildren().size() == 0)
+//				{// 是叶子节点，root节点前面不用添加格式字符串
+//					listOfTree.add(indexOfFirstChild - 2, root.getValue().toString());
+//					listOfTree.add(indexOfFirstChild - 2, "(");// root的index和第一个孩子返回的index大小相同
+//					listOfTree.add(")");
+//					indexOfRoot = indexOfFirstChild - 1;
+//				}
+//				else
+//				{// 不是叶子节点,root节点前面要添加格式字符串
+//					listOfTree.add(indexOfFirstChild - 2, root.getValue().toString());
+//					listOfTree.add(indexOfFirstChild - 2, "(");// root的index和第一个孩子返回的index大小相同
+//					String format = "";
+//					for (int i = 0; i < root.height(); i++)
+//					{
+//						format = format + " ";
+//						format = format + " ";
+//					}
+//					listOfTree.add(indexOfFirstChild - 2, "\r\n" + format);
+//					listOfTree.add(")");
+//					indexOfRoot = indexOfFirstChild;
+//				}
+//			}
+//
+//		}
+//		else
+//		{// 处理root是叶子节点，结束递归的条件
+//			listOfTree.add("(");
+//			listOfTree.add(root.getValue().toString());
+//			indexOfFirstChild = listOfTree.size() - 1;
+//			listOfTree.add(")");
+//			indexOfRoot = indexOfFirstChild;
+//		}
+//
+//		return indexOfRoot;
+//	}
 
 	// 将树的节点插入到list中，并返回根节点在list中的索引，没有换行符和多余空格
 	public int treeToList(TreePanelNode root, LinkedList<String> listOfTree)
