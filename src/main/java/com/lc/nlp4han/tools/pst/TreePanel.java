@@ -650,19 +650,23 @@ public class TreePanel extends JPanel
 		this.hasModeified = hasModeified;
 	}
 
-	public static void drawAL(int sx, int sy, int ex, int ey, Graphics2D g2)
+	// 画带箭头的线
+	public static void drawLineArrow(int sx, int sy, int ex, int ey, Graphics2D g2)
 	{
-
 		double H = 10; // 箭头高度
 		double L = 4; // 底边的一半
+		
 		int x3 = 0;
 		int y3 = 0;
 		int x4 = 0;
 		int y4 = 0;
+		
 		double awrad = Math.atan(L / H); // 箭头角度
 		double arraow_len = Math.sqrt(L * L + H * H); // 箭头的长度
+		
 		double[] arrXY_1 = rotateVec(ex - sx, ey - sy, awrad, true, arraow_len);
 		double[] arrXY_2 = rotateVec(ex - sx, ey - sy, -awrad, true, arraow_len);
+		
 		double x_3 = ex - arrXY_1[0]; // (x3,y3)是第一端点
 		double y_3 = ey - arrXY_1[1];
 		double x_4 = ex - arrXY_2[0]; // (x4,y4)是第二端点
@@ -676,8 +680,10 @@ public class TreePanel extends JPanel
 		x4 = X4.intValue();
 		Double Y4 = new Double(y_4);
 		y4 = Y4.intValue();
+		
 		// 画线
 		g2.drawLine(sx, sy, ex, ey);
+		
 		//
 		GeneralPath triangle = new GeneralPath();
 		triangle.moveTo(ex, ey);
@@ -692,7 +698,7 @@ public class TreePanel extends JPanel
 	}
 
 	// 计算
-	public static double[] rotateVec(int px, int py, double ang, boolean isChLen, double newLen)
+	private static double[] rotateVec(int px, int py, double ang, boolean isChLen, double newLen)
 	{
 
 		double mathstr[] = new double[2];
@@ -713,6 +719,7 @@ public class TreePanel extends JPanel
 	public void paint(Graphics g)
 	{
 		super.paint(g);
+		
 		FontMetrics fm = g.getFontMetrics();
 		String str = "newNode";
 		int width = fm.stringWidth(str) + 20;
@@ -746,6 +753,7 @@ public class TreePanel extends JPanel
 					break;
 				}
 			}
+			
 			if (j == siblingOfNewNode.size())
 			{
 				siblingOfNewNode.insertElementAt(newNode, j);
@@ -798,7 +806,9 @@ public class TreePanel extends JPanel
 				// nodes.get(i).getParent().getWidth() / 2,
 				// nodes.get(i).getParent().getLocation().y );
 				g.drawString(value, nodes.get(i).getLocation().x + 10, nodes.get(i).getLocation().y + 20);
-				g.drawRect(nodes.get(i).getLocation().x, nodes.get(i).getLocation().y, nodes.get(i).getWidth(),
+				g.drawRect(nodes.get(i).getLocation().x, 
+						nodes.get(i).getLocation().y, 
+						nodes.get(i).getWidth(),
 						nodes.get(i).getHeight());
 
 			}
@@ -811,9 +821,10 @@ public class TreePanel extends JPanel
 			else
 				g.setColor(Color.BLACK);
 			if (nodes.get(i).getParent() != null)
-				drawAL(nodes.get(i).getParent().getLocation().x + nodes.get(i).getParent().getWidth() / 2,
+				drawLineArrow(nodes.get(i).getParent().getLocation().x + nodes.get(i).getParent().getWidth() / 2,
 						nodes.get(i).getParent().getLocation().y + nodes.get(i).getParent().getHeight(),
-						nodes.get(i).getLocation().x + nodes.get(i).getWidth() / 2, nodes.get(i).getLocation().y,
+						nodes.get(i).getLocation().x + nodes.get(i).getWidth() / 2, 
+						nodes.get(i).getLocation().y,
 						(Graphics2D) g);
 		}
 
