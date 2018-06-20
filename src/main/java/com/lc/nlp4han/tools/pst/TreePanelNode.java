@@ -72,6 +72,7 @@ public class TreePanelNode
 			return false;
 	}
 
+	// 获得多棵树的所有节点
 	public static Vector<TreePanelNode> nodesOfAllTrees(ArrayList<TreePanelNode> treeLists)
 	{
 		Vector<TreePanelNode> nodes = new Vector<TreePanelNode>();

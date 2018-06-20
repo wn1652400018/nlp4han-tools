@@ -25,10 +25,11 @@ public class TreePanel extends JPanel
 	
 	private Vector<TreePanelNode> nodes;
 	private ArrayList<TreePanelNode> treeLists;
+	
 	private TreeAtTxt treeAtTxt;
 	private HashMap<String, Boolean> hasModeified;// 记录文本是否被改变
 
-	private int selectedNodes = -1;// 默认表示没有选中节点
+	private int selectedNode = -1;// 默认表示没有选中节点
 	private ArrayList<Integer> selectedALines = new ArrayList<Integer>();
 	private int selectedALine = -1;// 默认没有选中线。selectedALine表示 被选中线的箭头指向的节点 与其父节点之间的连线
 	
@@ -50,8 +51,6 @@ public class TreePanel extends JPanel
 
 	public TreePanel()
 	{
-
-		// selectedNodes = new Vector<Integer>();
 		setBackground(Color.WHITE);
 		addMouseListener(new MouseAdapter()
 		{
@@ -70,55 +69,54 @@ public class TreePanel extends JPanel
 				for (; i < nodes.size(); i++)
 				{
 					// System.out.println("--------"+mouseX+" "+mouseY);
-					if (nodes.get(i).getBounds().contains(mouseX, mouseY))
-					{// 鼠标停留在节点i的矩形里面
-						selectedNodes = i;
-						// if (me.getClickCount() ==
-						// 2&&!me.isAltDown()&&!me.isControlDown()&&!me.isShiftDown()) {//双击编辑节点
+					if (nodes.get(i).getBounds().contains(mouseX, mouseY)) // 鼠标停留在节点i的矩形里面
+					{						
+						selectedNode = i;
+
 						if (me.getClickCount() == 2 && !me.isAltDown())
 						{// 双击编辑节点
 							editingNode = i;
 							nodes.get(i).setValue(nodes.get(editingNode).getValue());
 
 						}
+						
 						if (editingNode != i)
 						{
 							editingNode = -1;
 						}
 
-						// if( ( me.isAltDown()&&!me.isControlDown() ) || isAdd_Clicked())
-						// {//alt加点击i节点,被选中节点会增加一个子节点
 						if (me.isAltDown() || isAdd_Clicked())
 						{// alt加点击i节点,被选中节点会增加一个子节点
-							parentOfAddingNode = selectedNodes;
+							parentOfAddingNode = selectedNode;
 							add_Clicked = false;
 							addButton.setBackground((Color) new ColorUIResource(238, 238, 238));
-							// add.setBackground(Color.YELLOW);
 						}
+						
 						if (parentOfAddingNode != i)
 						{
 							parentOfAddingNode = -1;
 						}
 
-						// 将选择的节点设置为该树的根节点
-						if (isSelectRoot_Clicked())
-						{
-							int indexOfPreRoot = treeLists.indexOf(nodes.get(selectedNodes).getRoot());
-							treeLists.set(indexOfPreRoot, nodes.get(selectedNodes).changeRoot());
-							nodes = TreePanelNode.nodesOfAllTrees(treeLists);
-							selectRoot_Clicked = false;
-							selectRootButton.setBackground((Color) new ColorUIResource(238, 238, 238));
-							selectedNodes = -1;
-							changeStatus_PanelModified();
-							repaint();
-						}
+//						// 将选择的节点设置为该树的根节点
+//						if (isSelectRoot_Clicked())
+//						{
+//							int indexOfPreRoot = treeLists.indexOf(nodes.get(selectedNode).getRoot());
+//							treeLists.set(indexOfPreRoot, nodes.get(selectedNode).changeRoot());
+//							nodes = TreePanelNode.nodesOfAllTrees(treeLists);
+//							selectRoot_Clicked = false;
+//							selectRootButton.setBackground((Color) new ColorUIResource(238, 238, 238));
+//							selectedNode = -1;
+//							changeStatus_PanelModified();
+//							repaint();
+//						}
+						
 						// 鼠标点击了combine按钮，该按钮呈选中状态,连接两个节点
 						if (isCombine_Clicked())
 						{
 							count++;
 							count = count % 2;
 
-							combinedNodes[count] = selectedNodes;
+							combinedNodes[count] = selectedNode;
 							if (combinedNodes[0] != -1 && combinedNodes[1] != -1
 									&& combinedNodes[0] != combinedNodes[1])
 							{// 此时表示连接两个节点
@@ -136,15 +134,19 @@ public class TreePanel extends JPanel
 												JOptionPane.INFORMATION_MESSAGE) == JOptionPane.YES_OPTION)
 										{
 											treeLists.remove(secondNode.getRoot());
+											
 											secondNode.changeRoot();
+											
 											for (TreePanelNode aNode : TreePanelNode.allNodes(secondNode))
 											{
 												aNode.setRoot(firstNode.getRoot());
 											}
 											secondNode.setParent(firstNode);
 											firstNode.getChildren().add(secondNode);
+											
 											secondNode.calculateAngle();
 											firstNode.sortByAngle();
+											
 											nodes = TreePanelNode.nodesOfAllTrees(treeLists);
 
 											changeStatus_PanelModified();
@@ -152,16 +154,15 @@ public class TreePanel extends JPanel
 											combinedNodes[0] = -1;
 											combinedNodes[1] = -1;
 											count = -1;
-											selectedNodes = -1;
+											selectedNode = -1;
 										}
 										else
 										{
 											combinedNodes[0] = -1;
 											combinedNodes[1] = -1;
 											count = -1;
-											selectedNodes = -1;
+											selectedNode = -1;
 										}
-
 									}
 									else
 									{
@@ -170,22 +171,26 @@ public class TreePanel extends JPanel
 										{
 											aNode.setRoot(firstNode.getRoot());
 										}
+										
 										secondNode.setParent(firstNode);
 										firstNode.getChildren().add(secondNode);
+										
 										secondNode.calculateAngle();
 										firstNode.sortByAngle();
+										
 										nodes = TreePanelNode.nodesOfAllTrees(treeLists);
+										
 										changeStatus_PanelModified();
 										combinedNodes[0] = -1;
 										combinedNodes[1] = -1;
 										count = -1;
-										selectedNodes = -1;
+										selectedNode = -1;
 									}
 
 								}
 								else
 								{
-									combinedNodes[0] = selectedNodes;
+									combinedNodes[0] = selectedNode;
 									combinedNodes[1] = -1;
 									count = 0;
 								}
@@ -200,7 +205,7 @@ public class TreePanel extends JPanel
 
 						if (isDelete_Clicked())
 						{ // 点击了删除按钮，删除点击的节点
-							for (TreePanelNode child : nodes.get(selectedNodes).getChildren())
+							for (TreePanelNode child : nodes.get(selectedNode).getChildren())
 							{
 								Vector<TreePanelNode> nodesOfTree_child = TreePanelNode.allNodes(child);
 								child.setParent(null);
@@ -215,20 +220,20 @@ public class TreePanel extends JPanel
 							}
 							// nodes.get(selectedNodes).setChildren(new Vector<TreePanelNode>()
 							// );//将该节点的子节点去掉
-							if (nodes.get(selectedNodes) == nodes.get(selectedNodes).getRoot())
+							if (nodes.get(selectedNode) == nodes.get(selectedNode).getRoot())
 							{
-								treeLists.remove(nodes.get(selectedNodes));
+								treeLists.remove(nodes.get(selectedNode));
 							}
 							else
 							{
-								nodes.get(selectedNodes).getParent().getChildren().remove(nodes.get(selectedNodes));// 删除该节点
+								nodes.get(selectedNode).getParent().getChildren().remove(nodes.get(selectedNode));// 删除该节点
 							}
 
 							nodes = TreePanelNode.nodesOfAllTrees(treeLists);
 
 							changeStatus_PanelModified();
 
-							selectedNodes = -1;
+							selectedNode = -1;
 							editingNode = -1;// 编辑过程中可以直接删除该节点
 							System.out.println("删除了该节点");
 							repaint();
@@ -238,13 +243,13 @@ public class TreePanel extends JPanel
 					}
 					else
 					{// 节点i不是选中节点
-						selectedNodes = -1;
+						selectedNode = -1;
 						editingNode = -1;
 						parentOfAddingNode = -1;
 					}
 				}
 
-				if (selectedNodes == -1 && parentOfAddingNode == -1)
+				if (selectedNode == -1 && parentOfAddingNode == -1)
 				{// 没有选中节点，用来添加一颗新的树
 					// if( ( me.isAltDown() && !me.isControlDown() ) || isAdd_Clicked() ) {
 					if (me.isAltDown() || isAdd_Clicked())
@@ -262,20 +267,20 @@ public class TreePanel extends JPanel
 			public void mouseReleased(MouseEvent me)
 			{// 该事件在点击收回鼠标时或者拖拽结束释放鼠标时触发
 				parentOfAddingNode = -1;
-				System.out.println("selectedNodes=" + selectedNodes);
+				System.out.println("selectedNodes=" + selectedNode);
 
-				if ((selectedNodes != -1) && (((me.getX() - XBeforeDrag) != 0) || ((me.getY() - YBeforeDrag) != 0)))
+				if ((selectedNode != -1) && (((me.getX() - XBeforeDrag) != 0) || ((me.getY() - YBeforeDrag) != 0)))
 				{// 表示发生了拖拽事件，跟新nodes,调用repaint
-					if (nodes.get(selectedNodes).hasChangeAfterMoveNode(mouseX, mouseY))// 做了修改
+					if (nodes.get(selectedNode).hasChangeAfterMoveNode(mouseX, mouseY))// 做了修改
 						changeStatus_PanelModified();
 
-					nodes.get(selectedNodes).calculateAngle();// 计算被移动节点与父节点的角度
-					nodes.get(selectedNodes).calculateAngleOfChildren();// 计算被移动节点的子节点与被移动节点之间的角度
-					nodes.get(selectedNodes).sortByAngle();// 将被移动节点的所有子节点排序
-					if (nodes.get(selectedNodes).getParent() != null
-							&& nodes.get(selectedNodes).getParent().getChildren().size() != 1)
+					nodes.get(selectedNode).calculateAngle();// 计算被移动节点与父节点的角度
+					nodes.get(selectedNode).calculateAngleOfChildren();// 计算被移动节点的子节点与被移动节点之间的角度
+					nodes.get(selectedNode).sortByAngle();// 将被移动节点的所有子节点排序
+					if (nodes.get(selectedNode).getParent() != null
+							&& nodes.get(selectedNode).getParent().getChildren().size() != 1)
 					{// 如果被移动的节点有兄弟节点
-						TreePanelNode theMovingNode = nodes.get(selectedNodes);
+						TreePanelNode theMovingNode = nodes.get(selectedNode);
 						Vector<TreePanelNode> siblingOfMovedNode = theMovingNode.getParent().getChildren();// 获得包括移动节点的其兄弟节点的Vector
 						siblingOfMovedNode.remove(theMovingNode);// 将被移动节点从其兄弟节点序列中移除，在重新按合理顺序添加进去并且跟新nodes序列
 						int i = 0;
@@ -285,14 +290,14 @@ public class TreePanel extends JPanel
 							{
 								siblingOfMovedNode.insertElementAt(theMovingNode, i);
 								nodes = TreePanelNode.nodesOfAllTrees(treeLists);
-								selectedNodes = nodes.indexOf(siblingOfMovedNode.elementAt(i));
+								selectedNode = nodes.indexOf(siblingOfMovedNode.elementAt(i));
 								break;
 							}
 						}
 						if (i == siblingOfMovedNode.size())
 							siblingOfMovedNode.add(theMovingNode);
 						nodes = TreePanelNode.nodesOfAllTrees(treeLists);
-						selectedNodes = nodes.indexOf(siblingOfMovedNode.elementAt(i));
+						selectedNode = nodes.indexOf(siblingOfMovedNode.elementAt(i));
 					}
 					nodes = TreePanelNode.nodesOfAllTrees(treeLists);
 
@@ -311,7 +316,7 @@ public class TreePanel extends JPanel
 					repaint();
 				}
 
-				if (selectedNodes == -1 && !selectedALines.isEmpty())
+				if (selectedNode == -1 && !selectedALines.isEmpty())
 				{// 删除连线
 					for (int selectedALine : selectedALines)
 					{
@@ -319,11 +324,13 @@ public class TreePanel extends JPanel
 						treeLists.add(nodes.get(selectedALine));
 
 					}
+					
 					nodes = TreePanelNode.nodesOfAllTrees(treeLists);
 					for (TreePanelNode aNode : nodes)
 						aNode.print();
 					selectedALines = new ArrayList<Integer>();
 					changeStatus_PanelModified();
+					
 					repaint();
 				}
 			}
@@ -363,9 +370,9 @@ public class TreePanel extends JPanel
 					selectRootButton.setBackground((Color) new ColorUIResource(238, 238, 238));
 				}
 				// System.out.println("+++++");
-				if (selectedNodes != -1 && ke.getKeyCode() == KeyEvent.VK_DELETE)
+				if (selectedNode != -1 && ke.getKeyCode() == KeyEvent.VK_DELETE)
 				{
-					for (TreePanelNode child : nodes.get(selectedNodes).getChildren())
+					for (TreePanelNode child : nodes.get(selectedNode).getChildren())
 					{
 						Vector<TreePanelNode> nodesOfTree_child = TreePanelNode.allNodes(child);
 						child.setParent(null);
@@ -380,19 +387,19 @@ public class TreePanel extends JPanel
 					}
 					// nodes.get(selectedNodes).setChildren(new Vector<TreePanelNode>()
 					// );//将该节点的子节点去掉
-					if (nodes.get(selectedNodes) == nodes.get(selectedNodes).getRoot())
+					if (nodes.get(selectedNode) == nodes.get(selectedNode).getRoot())
 					{
-						treeLists.remove(nodes.get(selectedNodes));
+						treeLists.remove(nodes.get(selectedNode));
 					}
 					else
 					{
-						nodes.get(selectedNodes).getParent().getChildren().remove(nodes.get(selectedNodes));// 删除该节点
+						nodes.get(selectedNode).getParent().getChildren().remove(nodes.get(selectedNode));// 删除该节点
 					}
 
 					nodes = TreePanelNode.nodesOfAllTrees(treeLists);
 
 					changeStatus_PanelModified();
-					selectedNodes = -1;
+					selectedNode = -1;
 					editingNode = -1;// 编辑过程中可以直接删除该节点
 					System.out.println("删除了该节点");
 					repaint();
@@ -424,6 +431,7 @@ public class TreePanel extends JPanel
 					nodes.get(editingNode).setValue(
 							nodes.get(editingNode).getValue().toString() + String.valueOf(ke.getKeyChar()).trim());
 					changeStatus_PanelModified();
+					
 					repaint();
 				}
 			}
@@ -438,30 +446,29 @@ public class TreePanel extends JPanel
 				mouseY = me.getY();
 				System.out.println("拖拽了");
 				// 确定鼠标停留在所选择节点的上面
-				if (selectedNodes != -1)
+				if (selectedNode != -1)
 				{
-
-					// if (me.isAltDown() && !me.isControlDown()&&parentOfAddingNode!=-1) {
 					if (me.isAltDown() && parentOfAddingNode != -1)
 					{
-						parentOfAddingNode = selectedNodes;
+						parentOfAddingNode = selectedNode;
 						// System.out.println("添加了"+parentOfAddingNode+"的子节点");
 					}
 					else
 					{
 						parentOfAddingNode = -1;
 
-						if (nodes.get(selectedNodes).hasChangeAfterMoveNode(mouseX, mouseY))// 做了修改
+						if (nodes.get(selectedNode).hasChangeAfterMoveNode(mouseX, mouseY))// 做了修改
 							changeStatus_PanelModified();
 						// 用来将选中的节点移动,移动节点
-						nodes.get(selectedNodes).setLocation(nodes.get(selectedNodes).getLocation().x + mouseX - tempX,
-								nodes.get(selectedNodes).getLocation().y + mouseY - tempY);
+						nodes.get(selectedNode).setLocation(nodes.get(selectedNode).getLocation().x + mouseX - tempX,
+								nodes.get(selectedNode).getLocation().y + mouseY - tempY);
 
 						tempX = mouseX;
 						tempY = mouseY;
 
-						System.out.println("移动了第" + selectedNodes + "个节点");
+						System.out.println("移动了第" + selectedNode + "个节点");
 					}
+					
 					repaint();
 				}
 				else if (isDelete_Clicked())
@@ -474,6 +481,7 @@ public class TreePanel extends JPanel
 							selectedALines.add(i);
 						}
 					}
+					
 					repaint();
 				}
 			}
@@ -605,12 +613,12 @@ public class TreePanel extends JPanel
 
 	public int getSelectedNodes()
 	{
-		return selectedNodes;
+		return selectedNode;
 	}
 
 	public void setSelectedNodes(int selectedNodes)
 	{
-		this.selectedNodes = selectedNodes;
+		this.selectedNode = selectedNodes;
 	}
 
 	public int getSelectedALine()
@@ -697,7 +705,7 @@ public class TreePanel extends JPanel
 
 	}
 
-	// 计算
+	// 旋转箭头线
 	private static double[] rotateVec(int px, int py, double ang, boolean isChLen, double newLen)
 	{
 
@@ -742,7 +750,7 @@ public class TreePanel extends JPanel
 				{
 					siblingOfNewNode.insertElementAt(newNode, j);
 					nodes = TreePanelNode.nodesOfAllTrees(treeLists);
-					selectedNodes = nodes.indexOf(newNode);
+					selectedNode = nodes.indexOf(newNode);
 
 					// 测试
 					for (int i = 0; i < nodes.size(); i++)
@@ -758,7 +766,7 @@ public class TreePanel extends JPanel
 			{
 				siblingOfNewNode.insertElementAt(newNode, j);
 				nodes = TreePanelNode.nodesOfAllTrees(treeLists);
-				selectedNodes = nodes.indexOf(newNode);
+				selectedNode = nodes.indexOf(newNode);
 
 				// 测试
 				for (int i = 0; i < nodes.size(); i++)
@@ -780,15 +788,16 @@ public class TreePanel extends JPanel
 			// System.out.println("treeLists为空："+treeLists.isEmpty());
 			nodes = TreePanelNode.nodesOfAllTrees(treeLists);
 			// System.out.println("nodes为空："+nodes.isEmpty());
-			selectedNodes = nodes.indexOf(newNode);
+			selectedNode = nodes.indexOf(newNode);
 			changeStatus_PanelModified();
 			parentOfAddingNode = -1;
 		}
 
+		// 绘制节点
 		for (int i = 0; i < nodes.size(); i++)
 		{// repaint被调用该for循环必然被调用
 			{
-				if (selectedNodes == i)
+				if (selectedNode == i)
 					g.setColor(Color.RED);
 				else
 					g.setColor(Color.BLACK);
@@ -800,12 +809,8 @@ public class TreePanel extends JPanel
 				int high = fm.getHeight() + 20;
 				nodes.get(i).setSize(wide, high);// 根据节点中内容设定节点的宽高
 
-				// g.drawLine(nodes.get(i).getLocation().x + nodes.get(i).getWidth() / 2,
-				// nodes.get(i).getLocation().y + nodes.get(i).getHeight() / 2,
-				// nodes.get(i).getParent().getLocation().x +
-				// nodes.get(i).getParent().getWidth() / 2,
-				// nodes.get(i).getParent().getLocation().y );
 				g.drawString(value, nodes.get(i).getLocation().x + 10, nodes.get(i).getLocation().y + 20);
+				
 				g.drawRect(nodes.get(i).getLocation().x, 
 						nodes.get(i).getLocation().y, 
 						nodes.get(i).getWidth(),
@@ -814,12 +819,14 @@ public class TreePanel extends JPanel
 			}
 		}
 
+		// 绘制节点间连线
 		for (int i = 0; i < nodes.size(); i++)
 		{
 			if (selectedALines.contains(i))
 				g.setColor(Color.RED);
 			else
 				g.setColor(Color.BLACK);
+			
 			if (nodes.get(i).getParent() != null)
 				drawLineArrow(nodes.get(i).getParent().getLocation().x + nodes.get(i).getParent().getWidth() / 2,
 						nodes.get(i).getParent().getLocation().y + nodes.get(i).getParent().getHeight(),
