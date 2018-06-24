@@ -83,7 +83,7 @@ public class TreeEditorTool
 	private static int RIGHT = 0, LEFT = -1;// 表示左右滑动
 
 	private StanfordCoreNLP pipeline;
-	private Annotation annotation;
+//	private Annotation annotation;
 
 	public void init()
 	{
@@ -344,6 +344,7 @@ public class TreeEditorTool
 			}
 		});
 
+		// 打开菜单
 		jmi_open.addActionListener(new ActionListener()
 		{
 
@@ -365,6 +366,7 @@ public class TreeEditorTool
 				}
 				else
 				{
+					// TODO: 保存操作代码重复
 					returnValue = JOptionPane.showConfirmDialog(frame, "是否要保存,当前页面的内容。", "确认对话框",
 							JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
 					if (returnValue == JOptionPane.YES_OPTION)
@@ -524,10 +526,12 @@ public class TreeEditorTool
 			}
 		});
 
+		// 保存菜单
 		jmi_save.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
 			{
+				// TODO: 保存操作代码重复
 				if (treePanel.getHasModeified().get(treePanel.getTreeAtTxt().getTxtPath()))
 				{// 文件被修改过
 					if (treePanel.getTreeLists().size() != 1)
@@ -655,6 +659,7 @@ public class TreeEditorTool
 
 		});
 
+		// 另存为菜单
 		jmi_saveAs.addActionListener(new ActionListener()
 		{
 
@@ -725,27 +730,26 @@ public class TreeEditorTool
 
 		jmi_gbk.addActionListener(new ActionListener()
 		{
-
 			public void actionPerformed(ActionEvent e)
 			{
-				// TODO Auto-generated method stub
 				charsetName = "gbk";
 				jmi_utf_8.setBackground((Color) new ColorUIResource(238, 238, 238));
 				jmi_gbk.setBackground(Color.green);
 			}
 		});
+		
 		jmi_utf_8.addActionListener(new ActionListener()
 		{
 
 			public void actionPerformed(ActionEvent e)
 			{
-				// TODO Auto-generated method stub
 				charsetName = "utf-8";
 				jmi_gbk.setBackground((Color) new ColorUIResource(238, 238, 238));
 				jmi_utf_8.setBackground(Color.GREEN);
 			}
 		});
 
+		// 句法解析按钮
 		parseButton.addActionListener(new ActionListener()
 		{
 
@@ -754,7 +758,7 @@ public class TreeEditorTool
 				String text = editRawText.getText();
 				if (text.trim().length() != 0)
 				{// 将无格式的括号表达式转化为有格式的表达式
-					annotation = new Annotation(text);
+					Annotation annotation = new Annotation(text);
 					pipeline.annotate(annotation);
 					List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
 
@@ -795,6 +799,7 @@ public class TreeEditorTool
 			}
 		});
 
+		// 生成句法树按钮
 		toTreeButtion.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -836,6 +841,8 @@ public class TreeEditorTool
 				}
 			}
 		});
+		
+		// 输出结果按钮
 		outputButton.addActionListener(new ActionListener()
 		{// 将被修改为另存为
 
@@ -906,6 +913,7 @@ public class TreeEditorTool
 			}
 		});
 
+		// 重画句法树按钮
 		rePaintButton.addActionListener(new ActionListener()
 		{
 
@@ -927,6 +935,8 @@ public class TreeEditorTool
 				treePanel.repaint();
 			}
 		});
+		
+		// 更新括号表达式按钮
 		updateBracketButton.addActionListener(new ActionListener()
 		{
 
@@ -975,6 +985,8 @@ public class TreeEditorTool
 				treePanel.repaint();
 			}
 		});
+		
+		// 清空按钮
 		clearPanel.addActionListener(new ActionListener()
 		{
 
@@ -1007,6 +1019,8 @@ public class TreeEditorTool
 				treePanel.repaint();
 			}
 		});
+		
+		// 连接按钮
 		combine.addActionListener(new ActionListener()
 		{
 
@@ -1034,6 +1048,8 @@ public class TreeEditorTool
 				treePanel.repaint();
 			}
 		});
+		
+		// 添加按钮
 		add.addActionListener(new ActionListener()
 		{
 
@@ -1059,6 +1075,7 @@ public class TreeEditorTool
 			}
 		});
 
+		// 删除按钮
 		delete.addActionListener(new ActionListener()
 		{
 
@@ -1083,6 +1100,7 @@ public class TreeEditorTool
 
 			}
 		});
+		
 		selectRoot.addActionListener(new ActionListener()
 		{
 
@@ -1107,6 +1125,8 @@ public class TreeEditorTool
 
 			}
 		});
+		
+		// 下一棵按钮
 		rightTree.addActionListener(new ActionListener()
 		{
 
@@ -1273,6 +1293,8 @@ public class TreeEditorTool
 				treePanel.repaint();
 			}
 		});
+		
+		// 上一棵按钮
 		leftTree.addActionListener(new ActionListener()
 		{
 
