@@ -113,25 +113,30 @@ public class TreeEditorTool
 		buttonPanel.add(outputButton);
 
 		// 创建菜单
-		JMenuBar jmb = new JMenuBar();
-		JMenu jm = new JMenu("文件");
+		JMenuBar menuBar = new JMenuBar();
+		JMenu menuFile = new JMenu("文件");
 		JMenuItem jmi_new = new JMenuItem("新建");
 		JMenuItem jmi_open = new JMenuItem("打开...");
 		JMenuItem jmi_save = new JMenuItem("保存");
 		JMenuItem jmi_saveAs = new JMenuItem("另存为...");
+		
+		JMenuItem jmiExit = new JMenuItem("退出");
 
-		JMenu charset = new JMenu("编码");
+		JMenu menuCharset = new JMenu("编码");
 		JMenuItem jmi_gbk = new JMenuItem("gbk");
 		JMenuItem jmi_utf_8 = new JMenuItem("utf-8");
 		jmi_gbk.setBackground(Color.GREEN);
-		jm.add(jmi_new);
-		jm.add(jmi_open);
-		jm.add(jmi_save);
-		jm.add(jmi_saveAs);
-		charset.add(jmi_gbk);
-		charset.add(jmi_utf_8);
-		jmb.add(jm);
-		jmb.add(charset);
+		menuFile.add(jmi_new);
+		menuFile.add(jmi_open);
+		menuFile.add(jmi_save);
+		menuFile.add(jmi_saveAs);
+		menuFile.add(jmiExit);
+		
+		menuCharset.add(jmi_gbk);
+		menuCharset.add(jmi_utf_8);
+		
+		menuBar.add(menuFile);
+		menuBar.add(menuCharset);
 
 		JScrollPane editjsp0 = new JScrollPane(editRawText); // 输入未处理的句子
 		JScrollPane editjsp = new JScrollPane(editBracket);// 输入括号表达式
@@ -184,7 +189,7 @@ public class TreeEditorTool
 		frame.setLocationByPlatform(true);
 		frame.add(panel);
 
-		frame.setJMenuBar(jmb);
+		frame.setJMenuBar(menuBar);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 
@@ -725,6 +730,15 @@ public class TreeEditorTool
 						e1.printStackTrace();
 					}
 				}
+			}
+		});
+		
+		// 退出菜单
+		jmiExit.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				System.exit(0);
 			}
 		});
 
