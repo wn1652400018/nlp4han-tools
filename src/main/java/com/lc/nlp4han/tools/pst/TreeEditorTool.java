@@ -87,8 +87,8 @@ public class TreeEditorTool
 
 	public void init()
 	{
-
-		// coreNLPInit();
+		coreNLPInit();
+		
 		treeAtTxt = new TreeAtTxt(treeLists);
 		allTreesAtTxt.add(treeAtTxt);
 		hasModeified.put(null, Boolean.FALSE);
@@ -842,7 +842,7 @@ public class TreeEditorTool
 			}
 		});
 		
-		// 输出结果按钮
+		// 导出到文件按钮
 		outputButton.addActionListener(new ActionListener()
 		{// 将被修改为另存为
 
@@ -1006,13 +1006,14 @@ public class TreeEditorTool
 						treePanel.setTreeAtTxt(treeAtTxt);
 						hasModeified.put(treePanel.getTreeAtTxt().getTxtPath(), Boolean.TRUE);
 						treePanel.setHasModeified(hasModeified);
-						resetButtonstatus();
-						treePanel.setSelectedNodes(-1);
-						treePanel.initCombineNodes();
-						treePanel.repaint();
+//						resetButtonstatus();
+//						treePanel.setSelectedNodes(-1);
+//						treePanel.initCombineNodes();
+//						treePanel.repaint();
 
 					}
 				}
+				
 				resetButtonstatus();
 				treePanel.setSelectedNodes(-1);
 				treePanel.initCombineNodes();
@@ -1036,14 +1037,16 @@ public class TreeEditorTool
 				}
 				else
 					combine.setBackground((Color) new ColorUIResource(238, 238, 238));
+				
 				treePanel.setAdd_Clicked(false);
 				add.setBackground((Color) new ColorUIResource(238, 238, 238));
+				
 				treePanel.setDelete_Clicked(false);
 				delete.setBackground((Color) new ColorUIResource(238, 238, 238));
+				
 				treePanel.setSelectRoot_Clicked(false);
 				selectRoot.setBackground((Color) new ColorUIResource(238, 238, 238));
-				// t.setModify_Clicked(false);
-				// modify.setBackground((Color)new ColorUIResource(238,238,238));
+
 				treePanel.grabFocus();
 				treePanel.repaint();
 			}
@@ -1057,19 +1060,22 @@ public class TreeEditorTool
 			{
 
 				treePanel.setSelectedNodes(-1);// 不选中节点
+				
 				treePanel.setAdd_Clicked(!treePanel.isAdd_Clicked());
 				if (treePanel.isAdd_Clicked())
 					add.setBackground(Color.green);
 				else
 					add.setBackground((Color) new ColorUIResource(238, 238, 238));
+				
 				treePanel.setCombine_Clicked(false);
 				combine.setBackground((Color) new ColorUIResource(238, 238, 238));
+				
 				treePanel.setDelete_Clicked(false);
 				delete.setBackground((Color) new ColorUIResource(238, 238, 238));
+				
 				treePanel.setSelectRoot_Clicked(false);
 				selectRoot.setBackground((Color) new ColorUIResource(238, 238, 238));
-				// t.setModify_Clicked(false);
-				// modify.setBackground((Color)new ColorUIResource(238,238,238));
+				
 				treePanel.grabFocus();
 				treePanel.repaint();
 			}
@@ -1083,18 +1089,21 @@ public class TreeEditorTool
 			{
 				treePanel.setSelectedNodes(-1);// 不选中节点
 				treePanel.setDelete_Clicked(!treePanel.isDelete_Clicked());
+				
 				if (treePanel.isDelete_Clicked())
 					delete.setBackground(Color.green);
 				else
 					delete.setBackground((Color) new ColorUIResource(238, 238, 238));
+				
 				treePanel.setCombine_Clicked(false);
 				combine.setBackground((Color) new ColorUIResource(238, 238, 238));
-				// t.setModify_Clicked(false);
-				// modify.setBackground((Color)new ColorUIResource(238,238,238));
+				
 				treePanel.setAdd_Clicked(false);
 				add.setBackground((Color) new ColorUIResource(238, 238, 238));
+				
 				treePanel.setSelectRoot_Clicked(false);
 				selectRoot.setBackground((Color) new ColorUIResource(238, 238, 238));
+				
 				treePanel.grabFocus();
 				treePanel.repaint();
 
