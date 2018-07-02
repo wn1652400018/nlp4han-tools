@@ -4,7 +4,7 @@
 
 	<groupId>com.lc</groupId>
 	<artifactId>nlp4han-tools</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1</version>
 	<packaging>jar</packaging>
 
 	<name>nlp4han-tools</name>

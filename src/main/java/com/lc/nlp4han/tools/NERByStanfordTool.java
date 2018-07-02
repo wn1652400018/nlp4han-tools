@@ -1,4 +1,4 @@
-package com.lc.nlp4han.tools.pos;
+package com.lc.nlp4han.tools;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -18,12 +18,12 @@ import edu.stanford.nlp.pipeline.CoreSentence;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 
 /**
- * 利用StanfordCoreNLP对生语料进行词性标注的工具
+ * 利用StanfordCoreNLP对生语料进行命名实体标注的工具
  * 
  * @author 刘小峰
  *
  */
-public class POSByStanfordTool
+public class NERByStanfordTool
 {
 
 	private static StanfordCoreNLP pipeline;
@@ -68,12 +68,13 @@ public class POSByStanfordTool
 
 			for (CoreSentence sentence : sentences)
 			{
+				List<String> nerTags = sentence.nerTags();
+			    
 				List<CoreLabel> tokens = sentence.tokens();
-				List<String> tags = sentence.posTags();
 
 				for (int i = 0; i < tokens.size(); i++)
 				{
-					bw.append(tokens.get(i).word() + sep + tags.get(i));
+					bw.append(tokens.get(i).word() + sep + nerTags.get(i));
 
 					if (i != tokens.size() - 1)
 						bw.append("  ");
@@ -89,8 +90,8 @@ public class POSByStanfordTool
 	private static void initCoreNLP() throws IOException
 	{
 		Properties props = new Properties();
-		props.load(POSByStanfordTool.class.getClassLoader().getResourceAsStream("StanfordCoreNLP-chinese.properties"));
-		props.setProperty("annotators", "tokenize,ssplit,pos");
+		props.load(NERByStanfordTool.class.getClassLoader().getResourceAsStream("StanfordCoreNLP-chinese.properties"));
+		props.setProperty("annotators", "tokenize,ssplit,pos,lemma,ner");
 		pipeline = new StanfordCoreNLP(props);
 	}
 
@@ -135,7 +136,7 @@ public class POSByStanfordTool
 			for(File raw : rawFiles)
 			{
 				String fileName = raw.getName();
-				File outFile = new File(out, fileName + ".pos");
+				File outFile = new File(out, fileName + ".ner");
 				
 				tag(raw, outFile, encoding);
 			}
