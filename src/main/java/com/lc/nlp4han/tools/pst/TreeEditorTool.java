@@ -1,11 +1,9 @@
 package com.lc.nlp4han.tools.pst;
 
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
-import java.awt.TextArea;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,7 +11,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -47,34 +44,52 @@ import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.util.CoreMap;
 
-public class TreeEditorTool {
+/**
+ * 短语结构树标注工具
+ * 
+ * 可以利用StanfordCoreNLP生成初步标注结果
+ * 
+ *
+ */
+public class TreeEditorTool
+{
 	private JFrame frame = new JFrame("未命名.txt" + "[ " + 1 + " / " + 1 + " ]");
+
 	private TreePanel treePanel = new TreePanel();
 	private JScrollPane paintjsp;
 	private JPanel editPanel = new JPanel();
-	private JTextArea editArea0 = new JTextArea(2, 80);
-	private JTextArea editArea = new JTextArea(8, 80);
-	private JButton start = new JButton("生成结构树");
-	private JButton treeToText = new JButton("导出到文件");
-	private JButton rePaint = new JButton("重画结构树");
-	private JButton updateExpression = new JButton("更新表达式");
-	private JButton parse = new JButton("句法分析");
-	private JButton importExpressionFromText = new JButton("导入表达式");
+
+	private JTextArea editRawText = new JTextArea(2, 80);
+	private JTextArea editBracket = new JTextArea(8, 80);
+
+	private JButton toTreeButtion = new JButton("生成结构树");
+	private JButton outputButton = new JButton("导出到文件");
+	private JButton rePaintButton = new JButton("重画结构树");
+	private JButton updateBracketButton = new JButton("更新表达式");
+	private JButton parseButton = new JButton("句法分析");
+
 	private JFileChooser fileChooser = new JFileChooser();
 	private TxtFileFilter txtFileFilter = new TxtFileFilter();
+
 	private static String charsetName = "gbk";// 默认读取文本编码为gbk
+
 	private Vector<TreePanelNode> nodes = new Vector<TreePanelNode>();
 	private ArrayList<TreePanelNode> treeLists = new ArrayList<TreePanelNode>();
+
 	private HashMap<String, Boolean> hasModeified = new HashMap<String, Boolean>(); // 记录文本是否被改变
+
 	private TreeAtTxt treeAtTxt = new TreeAtTxt();// 表示当前面板上的括号表达式
 	private ArrayList<TreeAtTxt> allTreesAtTxt = new ArrayList<TreeAtTxt>();// 表示所有文件中的括号表达式
+
 	private static int RIGHT = 0, LEFT = -1;// 表示左右滑动
+
 	private StanfordCoreNLP pipeline;
-	private Annotation annotation;
+//	private Annotation annotation;
 
-	public void init() {
-
-//		coreNLPInit();
+	public void init()
+	{
+		coreNLPInit();
+		
 		treeAtTxt = new TreeAtTxt(treeLists);
 		allTreesAtTxt.add(treeAtTxt);
 		hasModeified.put(null, Boolean.FALSE);
@@ -87,41 +102,45 @@ public class TreeEditorTool {
 		paintjsp = new JScrollPane(treePanel);
 
 		JPanel buttonPanel = new JPanel();
-		buttonPanel.add(parse);
+		buttonPanel.add(parseButton);
 		buttonPanel.add(Box.createVerticalStrut(8));
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
-		buttonPanel.add(start);
+		buttonPanel.add(toTreeButtion);
 		buttonPanel.add(Box.createVerticalStrut(8));
-		buttonPanel.add(rePaint);
+		buttonPanel.add(rePaintButton);
 		buttonPanel.add(Box.createVerticalStrut(8));
-		buttonPanel.add(updateExpression);
+		buttonPanel.add(updateBracketButton);
 		buttonPanel.add(Box.createVerticalStrut(8));
-		buttonPanel.add(treeToText);
+		buttonPanel.add(outputButton);
 
 		// 创建菜单
-		JMenuBar jmb = new JMenuBar();
-		JMenu jm = new JMenu("文件");
+		JMenuBar menuBar = new JMenuBar();
+		JMenu menuFile = new JMenu("文件");
 		JMenuItem jmi_new = new JMenuItem("新建");
-		JMenuItem jmi_open = new JMenuItem("打开");
+		JMenuItem jmi_open = new JMenuItem("打开...");
 		JMenuItem jmi_save = new JMenuItem("保存");
-		JMenuItem jmi_saveAs = new JMenuItem("另存为");
+		JMenuItem jmi_saveAs = new JMenuItem("另存为...");
 		
+		JMenuItem jmiExit = new JMenuItem("退出");
 
-		JMenu charset = new JMenu("编码");
+		JMenu menuCharset = new JMenu("编码");
 		JMenuItem jmi_gbk = new JMenuItem("gbk");
 		JMenuItem jmi_utf_8 = new JMenuItem("utf-8");
 		jmi_gbk.setBackground(Color.GREEN);
-		jm.add(jmi_new);
-		jm.add(jmi_open);
-		jm.add(jmi_save);
-		jm.add(jmi_saveAs);
-		charset.add(jmi_gbk);
-		charset.add(jmi_utf_8);
-		jmb.add(jm);
-		jmb.add(charset);
+		menuFile.add(jmi_new);
+		menuFile.add(jmi_open);
+		menuFile.add(jmi_save);
+		menuFile.add(jmi_saveAs);
+		menuFile.add(jmiExit);
 		
-		JScrollPane editjsp0 = new JScrollPane(editArea0); // 输入未处理的句子
-		JScrollPane editjsp = new JScrollPane(editArea);// 输入括号表达式
+		menuCharset.add(jmi_gbk);
+		menuCharset.add(jmi_utf_8);
+		
+		menuBar.add(menuFile);
+		menuBar.add(menuCharset);
+
+		JScrollPane editjsp0 = new JScrollPane(editRawText); // 输入未处理的句子
+		JScrollPane editjsp = new JScrollPane(editBracket);// 输入括号表达式
 		JPanel editTextPanel = new JPanel();
 		editTextPanel.setLayout(new BorderLayout());
 		editTextPanel.add(editjsp);
@@ -135,7 +154,6 @@ public class TreeEditorTool {
 		functionPanel.setLayout(new BoxLayout(functionPanel, BoxLayout.Y_AXIS));
 		JButton add = new JButton("增加");
 		JButton delete = new JButton("删除");
-		// JButton modify = new JButton("修改");
 		JButton combine = new JButton("连接");
 		JButton selectRoot = new JButton("root");
 		JButton clearPanel = new JButton("清空");
@@ -146,8 +164,6 @@ public class TreeEditorTool {
 		functionPanel.add(Box.createVerticalStrut(8));
 		functionPanel.add(delete);
 		functionPanel.add(Box.createVerticalStrut(8));
-		// functionPanel.add(modify);
-		// functionPanel.add(Box.createVerticalStrut(8));
 		functionPanel.add(combine);
 		functionPanel.add(Box.createVerticalStrut(8));
 		functionPanel.add(selectRoot);
@@ -162,27 +178,23 @@ public class TreeEditorTool {
 		treePanel.setDelete(delete);
 		treePanel.setCombine(combine);
 		treePanel.setSelectRoot(selectRoot);
-		System.out.println(222222);
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
 		panel.add(paintjsp);
 		panel.add(functionPanel, BorderLayout.WEST);
 		panel.add(editPanel, BorderLayout.NORTH);
 
-		double width = Toolkit.getDefaultToolkit().getScreenSize().width; // 得到当前屏幕分辨率的高
-		double height = Toolkit.getDefaultToolkit().getScreenSize().height - 45;// 得到当前屏幕分辨率的宽
-		frame.setSize((int) width, (int) height);// 设置大小
-		frame.setLocation(0, 0); // 设置窗体居中显示
-		// frame.setResizable(false);// 禁用最大化按钮
-		frame.setLocationRelativeTo(null);
+		int width = 4 * Toolkit.getDefaultToolkit().getScreenSize().width / 5;
+		int height = 4 * Toolkit.getDefaultToolkit().getScreenSize().height / 5;
+		frame.setSize(width, height);// 设置大小
+		frame.setLocationByPlatform(true);
 		frame.add(panel);
 
-		frame.setJMenuBar(jmb);
+		frame.setJMenuBar(menuBar);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 
-		// 测试
-		// 为文件菜单添加点击事件
+		// 新建菜单
 		jmi_new.addActionListener(new ActionListener() {
 
 			@Override
@@ -245,6 +257,7 @@ public class TreeEditorTool {
 			}
 		});
 
+		// 打开菜单
 		jmi_open.addActionListener(new ActionListener() {
 
 			@Override
@@ -313,6 +326,7 @@ public class TreeEditorTool {
 			}
 		});
 
+		// 保存菜单
 		jmi_save.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -352,17 +366,23 @@ public class TreeEditorTool {
 
 		});
 
-		jmi_saveAs.addActionListener(new ActionListener() {
+		// 另存为菜单
+		jmi_saveAs.addActionListener(new ActionListener()
+		{
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e)
+			{
 				treeLists = treePanel.getTreeLists();
 				nodes = TreePanelNode.nodesOfAllTrees(treeLists);
 				int returnValue = JOptionPane.YES_OPTION;
-				for (TreePanelNode root : treeLists) {
-					if (root.examTheTree() && root != null) {// 判断森林中的树是否都符合格式
+				for (TreePanelNode root : treeLists)
+				{
+					if (root.examTheTree() && root != null)
+					{// 判断森林中的树是否都符合格式
 						System.out.println(returnValue);
-					} else {
+					}
+					else
+					{
 
 						returnValue = JOptionPane.showConfirmDialog(frame, "括号表达式格式有错误,是否要保存。", "确认对话框",
 								JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
@@ -373,19 +393,23 @@ public class TreeEditorTool {
 				}
 
 				if (returnValue == JOptionPane.YES_OPTION && treeLists != null && nodes != null && !treeLists.isEmpty()
-						&& !nodes.isEmpty()) {
-					try {
+						&& !nodes.isEmpty())
+				{
+					try
+					{
 						int count = 0;
 						SimpleDateFormat date = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
 						System.out.println(date.format(new Date()) + ".txt");
 						fileChooser.setSelectedFile(new File(date.format(new Date()) + ".txt"));
-						if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {// 确定保存
+						if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
+						{// 确定保存
 							String filePath = fileChooser.getSelectedFile().toString();
 							FileOutputStream fos = new FileOutputStream(filePath);
 							OutputStreamWriter osw = new OutputStreamWriter(fos, charsetName);
 							BufferedWriter bw = new BufferedWriter(osw);
 							count = 0;
-							for (TreePanelNode root : treeLists) {
+							for (TreePanelNode root : treeLists)
+							{
 								count++;
 								if (root.examTheTree() && root != null)
 									for (String word : root.changeIntoText())
@@ -402,55 +426,73 @@ public class TreeEditorTool {
 						treePanel.initCombineNodes();
 						treePanel.setSelectedNodes(-1);
 						treePanel.repaint();
-					} catch (IOException e1) {
+					}
+					catch (IOException e1)
+					{
 						e1.printStackTrace();
 					}
 				}
 			}
 		});
+		
+		// 退出菜单
+		jmiExit.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				System.exit(0);
+			}
+		});
 
-		jmi_gbk.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+		jmi_gbk.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
 				charsetName = "gbk";
 				jmi_utf_8.setBackground((Color) new ColorUIResource(238, 238, 238));
 				jmi_gbk.setBackground(Color.green);
 			}
 		});
-		jmi_utf_8.addActionListener(new ActionListener() {
+		
+		jmi_utf_8.addActionListener(new ActionListener()
+		{
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+			public void actionPerformed(ActionEvent e)
+			{
 				charsetName = "utf-8";
 				jmi_gbk.setBackground((Color) new ColorUIResource(238, 238, 238));
 				jmi_utf_8.setBackground(Color.GREEN);
 			}
 		});
 
-		parse.addActionListener(new ActionListener() {
+		// 句法解析按钮
+		parseButton.addActionListener(new ActionListener()
+		{
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String text = editArea0.getText();
-				if (text.trim().length() != 0) {// 将无格式的括号表达式转化为有格式的表达式
-					annotation = new Annotation(text);
+			public void actionPerformed(ActionEvent e)
+			{
+				String text = editRawText.getText();
+				if (text.trim().length() != 0)
+				{// 将无格式的括号表达式转化为有格式的表达式
+					Annotation annotation = new Annotation(text);
 					pipeline.annotate(annotation);
 					List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
+
 					ArrayList<TreePanelNode> treeLists = new ArrayList<TreePanelNode>();
 					String expressionofAlltrees = "";
-					for (CoreMap sentence : sentences) {
+					for (CoreMap sentence : sentences)
+					{
 						Tree tree = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
 						String eachSentenceofOneLine = tree.toString();
 						expressionofAlltrees = expressionofAlltrees + eachSentenceofOneLine;
 					}
 					System.out.println(expressionofAlltrees);
+
 					treeLists = new TreePanelNode().fromTextToTree(expressionofAlltrees);
 					String sentencesofMultLines = "";
 					int count = 0;
-					for (TreePanelNode root : treeLists) {
+					for (TreePanelNode root : treeLists)
+					{
 						count++;
 						if (root.examTheTree() && root != null)
 							for (String word : root.changeIntoText())
@@ -460,30 +502,41 @@ public class TreeEditorTool {
 
 						sentencesofMultLines = sentencesofMultLines + "\r\n";
 					}
-					editArea.setText(sentencesofMultLines);
+
+					editBracket.setText(sentencesofMultLines);
 
 				}
+
 				resetButtonstatus();
+
 				treePanel.setSelectedNodes(-1);
 				treePanel.initCombineNodes();
 				treePanel.repaint();
 			}
 		});
 
-		start.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				System.out.println(new TreePanelNode().toOneLine(editArea.getText()));
-				System.out.println(new TreePanelNode().format(new TreePanelNode().toOneLine(editArea.getText())));
-				ArrayList<TreePanelNode> trees = new TreePanelNode().fromTextToTree(editArea.getText());
-				if (trees != null) {
+		// 生成句法树按钮
+		toTreeButtion.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				System.out.println(new TreePanelNode().toOneLine(editBracket.getText()));
+				System.out.println(new TreePanelNode().format(new TreePanelNode().toOneLine(editBracket.getText())));
+				ArrayList<TreePanelNode> trees = new TreePanelNode().fromTextToTree(editBracket.getText());
+				if (trees != null)
+				{
 
 					treeLists.clear();
 					treeLists = trees;
 					treeAtTxt.setTreeListWithOneTree(treeLists);
 					nodes = TreePanelNode.nodesOfAllTrees(treeLists);
-					for (TreePanelNode node : nodes) {
+					for (TreePanelNode node : nodes)
+					{
 						node.calculateAngle();
 					}
+					// System.out.println(new TreePanelNode().toOneLine(editArea.getText()));
+					// System.out.println(new TreePanelNode().format(new
+					// TreePanelNode().toOneLine(editArea.getText())));
 					hasModeified.put(treePanel.getTreeAtTxt().getTxtPath(), Boolean.FALSE);
 					treePanel.setTreeAtTxt(treeAtTxt);
 					treePanel.changeStatus_PanelModified();
@@ -493,7 +546,9 @@ public class TreeEditorTool {
 					treePanel.setSelectedNodes(-1);
 					treePanel.initCombineNodes();
 					treePanel.repaint();
-				} else {
+				}
+				else
+				{
 					JOptionPane.showMessageDialog(frame, "括号表达式格式有错误,请检查。", "消息提示框", JOptionPane.INFORMATION_MESSAGE);
 					resetButtonstatus();
 					treePanel.setSelectedNodes(-1);
@@ -502,17 +557,24 @@ public class TreeEditorTool {
 				}
 			}
 		});
-		treeToText.addActionListener(new ActionListener() {// 将被修改为另存为
+		
+		// 导出到文件按钮
+		outputButton.addActionListener(new ActionListener()
+		{// 将被修改为另存为
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e)
+			{
 				treeLists = treePanel.getTreeLists();
 				nodes = TreePanelNode.nodesOfAllTrees(treeLists);
 				int returnValue = JOptionPane.YES_OPTION;
-				for (TreePanelNode root : treeLists) {
-					if (root.examTheTree() && root != null) {// 判断森林中的树是否都符合格式
+				for (TreePanelNode root : treeLists)
+				{
+					if (root.examTheTree() && root != null)
+					{// 判断森林中的树是否都符合格式
 						System.out.println(returnValue);
-					} else {
+					}
+					else
+					{
 
 						returnValue = JOptionPane.showConfirmDialog(frame, "括号表达式格式有错误,是否要保存。", "确认对话框",
 								JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
@@ -523,19 +585,23 @@ public class TreeEditorTool {
 				}
 
 				if (returnValue == JOptionPane.YES_OPTION && treeLists != null && nodes != null && !treeLists.isEmpty()
-						&& !nodes.isEmpty()) {
-					try {
+						&& !nodes.isEmpty())
+				{
+					try
+					{
 						int count = 0;
 						SimpleDateFormat date = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
 						System.out.println(date.format(new Date()) + ".txt");
 						fileChooser.setSelectedFile(new File(date.format(new Date()) + ".txt"));
-						if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {// 确定保存
+						if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
+						{// 确定保存
 							String filePath = fileChooser.getSelectedFile().toString();
 							FileOutputStream fos = new FileOutputStream(filePath);
 							OutputStreamWriter osw = new OutputStreamWriter(fos, charsetName);
 							BufferedWriter bw = new BufferedWriter(osw);
 							count = 0;
-							for (TreePanelNode root : treeLists) {
+							for (TreePanelNode root : treeLists)
+							{
 								count++;
 								if (root.examTheTree() && root != null)
 									for (String word : root.changeIntoText())
@@ -549,7 +615,9 @@ public class TreeEditorTool {
 
 						}
 
-					} catch (IOException e1) {
+					}
+					catch (IOException e1)
+					{
 						e1.printStackTrace();
 					}
 				}
@@ -561,14 +629,17 @@ public class TreeEditorTool {
 			}
 		});
 
-		rePaint.addActionListener(new ActionListener() {
+		// 重画句法树按钮
+		rePaintButton.addActionListener(new ActionListener()
+		{
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e)
+			{
 
 				nodes = treePanel.getNodes();
 				treeLists = treePanel.getTreeLists();
-				if (treeLists != null && nodes != null && !treeLists.isEmpty() && !nodes.isEmpty()) {
+				if (treeLists != null && nodes != null && !treeLists.isEmpty() && !nodes.isEmpty())
+				{
 					TreePanelNode.repaintTreeLists(treeLists);
 					treePanel.setTreeLists(treeLists);
 					treePanel.setNodes(TreePanelNode.nodesOfAllTrees(treeLists));
@@ -580,17 +651,25 @@ public class TreeEditorTool {
 				treePanel.repaint();
 			}
 		});
-		updateExpression.addActionListener(new ActionListener() {
+		
+		// 更新括号表达式按钮
+		updateBracketButton.addActionListener(new ActionListener()
+		{
 
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e)
+			{
 				nodes = treePanel.getNodes();
 				treeLists = treePanel.getTreeLists();
 				int returnValue = JOptionPane.YES_OPTION;
-				for (TreePanelNode root : treeLists) {
-					if (root.examTheTree() && root != null) {// 判断森林中的树是否都符合格式
+				for (TreePanelNode root : treeLists)
+				{
+					if (root.examTheTree() && root != null)
+					{// 判断森林中的树是否都符合格式
 
-					} else {
+					}
+					else
+					{
 
 						returnValue = JOptionPane.showConfirmDialog(frame, "括号表达式格式有错误,是否要更新括号表达式。", "确认对话框",
 								JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
@@ -600,10 +679,12 @@ public class TreeEditorTool {
 
 				}
 				if (returnValue == JOptionPane.YES_OPTION && treeLists != null && nodes != null && !treeLists.isEmpty()
-						&& !nodes.isEmpty()) {
+						&& !nodes.isEmpty())
+				{
 					String allExpressionFormatted = "";
 					int count = 0;
-					for (TreePanelNode root : treeLists) {
+					for (TreePanelNode root : treeLists)
+					{
 						count++;
 						if (root.examTheTree() && root != null)
 							for (String word : root.changeIntoText())
@@ -612,7 +693,7 @@ public class TreeEditorTool {
 							allExpressionFormatted = allExpressionFormatted + "第" + count + "个括号表达式格式错误。";
 						allExpressionFormatted = allExpressionFormatted + "\r\n";
 					}
-					editArea.setText(allExpressionFormatted);
+					editBracket.setText(allExpressionFormatted);
 				}
 				resetButtonstatus();
 				treePanel.setSelectedNodes(-1);
@@ -620,13 +701,18 @@ public class TreeEditorTool {
 				treePanel.repaint();
 			}
 		});
-		clearPanel.addActionListener(new ActionListener() {
+		
+		// 清空按钮
+		clearPanel.addActionListener(new ActionListener()
+		{
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (!treeLists.isEmpty()) {
+			public void actionPerformed(ActionEvent e)
+			{
+				if (!treeLists.isEmpty())
+				{
 					if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(frame, "是否清除画板？", "确认清除画板",
-							JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE)) {
+							JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE))
+					{
 						treeLists.clear();
 						nodes.clear();
 
@@ -636,88 +722,115 @@ public class TreeEditorTool {
 						treePanel.setTreeAtTxt(treeAtTxt);
 						hasModeified.put(treePanel.getTreeAtTxt().getTxtPath(), Boolean.TRUE);
 						treePanel.setHasModeified(hasModeified);
-						resetButtonstatus();
-						treePanel.setSelectedNodes(-1);
-						treePanel.initCombineNodes();
-						treePanel.repaint();
+//						resetButtonstatus();
+//						treePanel.setSelectedNodes(-1);
+//						treePanel.initCombineNodes();
+//						treePanel.repaint();
 
 					}
 				}
+				
 				resetButtonstatus();
 				treePanel.setSelectedNodes(-1);
 				treePanel.initCombineNodes();
 				treePanel.repaint();
 			}
 		});
-		combine.addActionListener(new ActionListener() {
+		
+		// 连接按钮
+		combine.addActionListener(new ActionListener()
+		{
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e)
+			{
 				treePanel.setCombine_Clicked(!treePanel.isCombine_Clicked());
 				treePanel.initCombineNodes();
 				treePanel.setSelectedNodes(-1);// 不选中节点
 
-				if (treePanel.isCombine_Clicked()) {
+				if (treePanel.isCombine_Clicked())
+				{
 					combine.setBackground(Color.green);
-				} else
+				}
+				else
 					combine.setBackground((Color) new ColorUIResource(238, 238, 238));
+				
 				treePanel.setAdd_Clicked(false);
 				add.setBackground((Color) new ColorUIResource(238, 238, 238));
+				
 				treePanel.setDelete_Clicked(false);
 				delete.setBackground((Color) new ColorUIResource(238, 238, 238));
+				
 				treePanel.setSelectRoot_Clicked(false);
 				selectRoot.setBackground((Color) new ColorUIResource(238, 238, 238));
+
 				treePanel.grabFocus();
 				treePanel.repaint();
 			}
 		});
-		add.addActionListener(new ActionListener() {
+		
+		// 添加按钮
+		add.addActionListener(new ActionListener()
+		{
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e)
+			{
 
 				treePanel.setSelectedNodes(-1);// 不选中节点
+				
 				treePanel.setAdd_Clicked(!treePanel.isAdd_Clicked());
 				if (treePanel.isAdd_Clicked())
 					add.setBackground(Color.green);
 				else
 					add.setBackground((Color) new ColorUIResource(238, 238, 238));
+				
 				treePanel.setCombine_Clicked(false);
 				combine.setBackground((Color) new ColorUIResource(238, 238, 238));
+				
 				treePanel.setDelete_Clicked(false);
 				delete.setBackground((Color) new ColorUIResource(238, 238, 238));
+				
 				treePanel.setSelectRoot_Clicked(false);
 				selectRoot.setBackground((Color) new ColorUIResource(238, 238, 238));
+				
 				treePanel.grabFocus();
 				treePanel.repaint();
 			}
 		});
 
-		delete.addActionListener(new ActionListener() {
+		// 删除按钮
+		delete.addActionListener(new ActionListener()
+		{
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e)
+			{
 				treePanel.setSelectedNodes(-1);// 不选中节点
 				treePanel.setDelete_Clicked(!treePanel.isDelete_Clicked());
+				
 				if (treePanel.isDelete_Clicked())
 					delete.setBackground(Color.green);
 				else
 					delete.setBackground((Color) new ColorUIResource(238, 238, 238));
+				
 				treePanel.setCombine_Clicked(false);
 				combine.setBackground((Color) new ColorUIResource(238, 238, 238));
+				
 				treePanel.setAdd_Clicked(false);
 				add.setBackground((Color) new ColorUIResource(238, 238, 238));
+				
 				treePanel.setSelectRoot_Clicked(false);
 				selectRoot.setBackground((Color) new ColorUIResource(238, 238, 238));
+				
 				treePanel.grabFocus();
 				treePanel.repaint();
 
 			}
 		});
-		selectRoot.addActionListener(new ActionListener() {
+		
+		selectRoot.addActionListener(new ActionListener()
+		{
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e)
+			{
 				treePanel.setSelectedNodes(-1);// 不选中节点
 				treePanel.setSelectRoot_Clicked(!treePanel.isSelectRoot_Clicked());
 				if (treePanel.isSelectRoot_Clicked())
@@ -726,6 +839,8 @@ public class TreeEditorTool {
 					selectRoot.setBackground((Color) new ColorUIResource(238, 238, 238));
 				treePanel.setCombine_Clicked(false);
 				combine.setBackground((Color) new ColorUIResource(238, 238, 238));
+				// t.setModify_Clicked(false);
+				// modify.setBackground((Color)new ColorUIResource(238,238,238));
 				treePanel.setAdd_Clicked(false);
 				add.setBackground((Color) new ColorUIResource(238, 238, 238));
 				treePanel.setDelete_Clicked(false);
@@ -735,6 +850,8 @@ public class TreeEditorTool {
 
 			}
 		});
+		
+		// 下一棵按钮
 		rightTree.addActionListener(new ActionListener() {
 
 			@Override
@@ -815,6 +932,8 @@ public class TreeEditorTool {
 				treePanel.repaint();
 			}
 		});
+		
+		// 上一棵按钮
 		leftTree.addActionListener(new ActionListener() {
 
 			@Override
@@ -886,18 +1005,24 @@ public class TreeEditorTool {
 		});
 	}
 
-	private void resetButtonstatus() {
+
+	private void resetButtonstatus()
+	{
 		treePanel.setDelete_Clicked(false);
 		treePanel.getDelete().setBackground((Color) new ColorUIResource(238, 238, 238));
+
 		treePanel.setAdd_Clicked(false);
 		treePanel.getAdd().setBackground((Color) new ColorUIResource(238, 238, 238));
+
 		treePanel.setCombine_Clicked(false);
 		treePanel.getCombine().setBackground((Color) new ColorUIResource(238, 238, 238));
+
 		treePanel.setSelectRoot_Clicked(false);
 		treePanel.getSelectRoot().setBackground((Color) new ColorUIResource(238, 238, 238));
 	}
 
-	private void resetTreePanel() {
+	private void resetTreePanel()
+	{
 		treeLists.clear();
 		allTreesAtTxt.clear();
 		nodes.clear();
@@ -917,12 +1042,15 @@ public class TreeEditorTool {
 		System.out.println("面板被清空了");
 	}
 
-	private boolean nextTreeLists(int direction) {
+	private boolean nextTreeLists(int direction)
+	{
 		int sizeOfTrees = allTreesAtTxt.size();
 		int positionOfTreeAtList = allTreesAtTxt.indexOf(treePanel.getTreeAtTxt());
 		System.out.println("positionOfTreeAtList" + positionOfTreeAtList);
-		if (direction == TreeEditorTool.LEFT) {// 向左滑动
-			if (positionOfTreeAtList != 0) {
+		if (direction == TreeEditorTool.LEFT)
+		{// 向左滑动
+			if (positionOfTreeAtList != 0)
+			{
 				treeLists = allTreesAtTxt.get(positionOfTreeAtList - 1).getTreeListWithOneTree();
 				nodes = TreePanelNode.nodesOfAllTrees(treeLists);
 				treeAtTxt = allTreesAtTxt.get(positionOfTreeAtList - 1);
@@ -943,10 +1071,14 @@ public class TreeEditorTool {
 				frame.setTitle(new File(treePanel.getTreeAtTxt().getTxtPath()).getName() + "[ "
 						+ treeAtTxt.treePositionAtTxt(allTreesAtTxt) + " ]");
 				return true;
-			} else
+			}
+			else
 				return false;
-		} else {// 向右滑动
-			if (positionOfTreeAtList != sizeOfTrees - 1) {
+		}
+		else
+		{// 向右滑动
+			if (positionOfTreeAtList != sizeOfTrees - 1)
+			{
 				treeLists = allTreesAtTxt.get(positionOfTreeAtList + 1).getTreeListWithOneTree();
 				nodes = TreePanelNode.nodesOfAllTrees(treeLists);
 				treeAtTxt = allTreesAtTxt.get(positionOfTreeAtList + 1);
@@ -967,14 +1099,84 @@ public class TreeEditorTool {
 				frame.setTitle(new File(treePanel.getTreeAtTxt().getTxtPath()).getName() + "[ "
 						+ treeAtTxt.treePositionAtTxt(allTreesAtTxt) + " ]");
 				return true;
-			} else
+			}
+			else
 				return false;
 		}
 
 	}
-	
+
+	private void openTxts() throws IOException
+	{
+		fileChooser.addChoosableFileFilter(txtFileFilter);
+		fileChooser.setMultiSelectionEnabled(true);
+		if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
+		{
+			File[] files = fileChooser.getSelectedFiles();
+			for (int i = 0, j = files.length - 1; i < files.length; i++, j--)
+			{// 由于JFileChooser会将先选择的文件后打开，故将数组files翻转
+				if (i < j)
+				{
+					File temp = files[i];
+					files[i] = files[j];
+					files[j] = temp;
+				}
+				else
+					break;
+			}
+
+			hasModeified.clear();
+			allTreesAtTxt.clear();
+
+			for (File file : files)
+			{
+				FileInputStream fis = new FileInputStream(file.toString());
+				InputStreamReader isr = new InputStreamReader(fis, charsetName);
+				BufferedReader br = new BufferedReader(isr);
+
+				String strOfaTxt = new String();
+				String line = null;
+				while ((line = br.readLine()) != null)
+				{
+					strOfaTxt += line;
+				}
+				br.close();
+
+				System.out.println(strOfaTxt);
+
+				ArrayList<TreePanelNode> trees = new TreePanelNode().fromTextToTree(strOfaTxt);
+				hasModeified.put(file.toString(), Boolean.FALSE);
+
+				for (TreePanelNode tree : trees)
+				{
+					TreePanelNode.allocatePosition(tree);
+					TreeAtTxt treeAtTxt = new TreeAtTxt(tree, file.toString());
+					allTreesAtTxt.add(treeAtTxt);
+				}
+			}
+
+			treeLists = allTreesAtTxt.get(0).getTreeListWithOneTree();
+			treePanel.setTreeLists(treeLists);
+			nodes = TreePanelNode.nodesOfAllTrees(treeLists);
+			treePanel.setNodes(nodes);
+			treeAtTxt = allTreesAtTxt.get(0);
+
+			treePanel.setTreeAtTxt(treeAtTxt);
+			treePanel.setHasModeified(hasModeified);
+
+			resetButtonstatus();
+
+			treePanel.setSelectedNodes(-1);
+			treePanel.initCombineNodes();
+			treePanel.repaint();
+
+			frame.setTitle(files[0].getName() + "[ " + treeAtTxt.treePositionAtTxt(allTreesAtTxt) + " ]");
+
+		}
+	}
+
 	private boolean saveTreesToTxt(String currentTxtPath) throws IOException {
-		if(currentTxtPath == null) {
+		if (currentTxtPath == null) {
 			SimpleDateFormat date = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
 			fileChooser.setSelectedFile(new File(date.format(new Date()) + ".txt"));
 			if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {// 确定保存
@@ -996,7 +1198,7 @@ public class TreeEditorTool {
 			} else {// 点击了取消或退出对话框，什么也不用做
 				return false;
 			}
-		}else{
+		} else {
 			ArrayList<TreePanelNode> treesOfSameTxt = new ArrayList<TreePanelNode>();
 			for (TreeAtTxt tat : allTreesAtTxt) {
 				if (tat.getTxtPath().equals(currentTxtPath))
@@ -1012,8 +1214,7 @@ public class TreeEditorTool {
 				}
 			}
 			if (correctFormat == false) {
-				JOptionPane.showMessageDialog(frame, "结构树格式有错误,请检查。", "消息提示框",
-						JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(frame, "结构树格式有错误,请检查。", "消息提示框", JOptionPane.INFORMATION_MESSAGE);
 				return false;
 			} else {
 				try {
@@ -1027,9 +1228,9 @@ public class TreeEditorTool {
 					}
 					hasModeified.put(currentTxtPath, Boolean.FALSE);
 					treePanel.setHasModeified(hasModeified);
-					
+
 					bw.close();
-			
+
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -1037,74 +1238,26 @@ public class TreeEditorTool {
 			}
 		}
 	}
-	
-	private void openTxts() throws IOException {
-		fileChooser.addChoosableFileFilter(txtFileFilter);
-		fileChooser.setMultiSelectionEnabled(true);
-		if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-			File[] files = fileChooser.getSelectedFiles();
-			for (int i = 0, j = files.length - 1; i < files.length; i++, j--) {// 由于JFileChooser会将先选择的文件后打开，故将数组files翻转
-				if (i < j) {
-					File temp = files[i];
-					files[i] = files[j];
-					files[j] = temp;
-				} else
-					break;
-			}
-			hasModeified.clear();
-			allTreesAtTxt.clear();
-			for (File file : files) {
-
-				FileInputStream fis = new FileInputStream(file.toString());
-				InputStreamReader isr = new InputStreamReader(fis, charsetName);
-				BufferedReader br = new BufferedReader(isr);
-				String strOfaTxt = new String();
-				String line = null;
-				while ((line = br.readLine()) != null) {
-					strOfaTxt += line;
-				}
-				br.close();
-				System.out.println(strOfaTxt);
-				ArrayList<TreePanelNode> trees = new TreePanelNode().fromTextToTree(strOfaTxt);
-				hasModeified.put(file.toString(), Boolean.FALSE);
-
-				for (TreePanelNode tree : trees) {
-					TreePanelNode.allocatePosition(tree);
-					TreeAtTxt treeAtTxt = new TreeAtTxt(tree, file.toString());
-					allTreesAtTxt.add(treeAtTxt);
-				}
-			}
-			treeLists = allTreesAtTxt.get(0).getTreeListWithOneTree();
-			treePanel.setTreeLists(treeLists);
-			nodes = TreePanelNode.nodesOfAllTrees(treeLists);
-			treePanel.setNodes(nodes);
-			treeAtTxt = allTreesAtTxt.get(0);
-			treePanel.setTreeAtTxt(treeAtTxt);
-			treePanel.setHasModeified(hasModeified);
-			resetButtonstatus();
-			treePanel.setSelectedNodes(-1);
-			treePanel.initCombineNodes();
-			treePanel.repaint();
-			frame.setTitle(files[0].getName() + "[ " + treeAtTxt.treePositionAtTxt(allTreesAtTxt) + " ]");
-
-		}
-	}
-
-	private void coreNLPInit() {
+	private void coreNLPInit()
+	{
 		Properties props = new Properties();
-		try {
+		try
+		{
 			props.load(this.getClass().getClassLoader().getResourceAsStream("StanfordCoreNLP-chinese.properties"));
 			props.setProperty("annotators", "tokenize,ssplit,pos,parse");
-		} catch (IOException e) {
+		}
+		catch (IOException e)
+		{
 			e.printStackTrace();
 		}
 
 		pipeline = new StanfordCoreNLP(props);
-//		annotation = new Annotation("句法分析。");
-//		pipeline.annotate(annotation);
+		// annotation = new Annotation("句法分析。");
+		// pipeline.annotate(annotation);
 	}
 
-	public static void main(String args[]) {
+	public static void main(String args[])
+	{
 		new TreeEditorTool().init();
 	}
 
