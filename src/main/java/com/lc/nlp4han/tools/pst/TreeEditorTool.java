@@ -3,6 +3,7 @@ package com.lc.nlp4han.tools.pst;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.HeadlessException;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -194,154 +195,61 @@ public class TreeEditorTool
 		frame.setVisible(true);
 
 		// 新建菜单
-		jmi_new.addActionListener(new ActionListener()
-		{
+		jmi_new.addActionListener(new ActionListener() {
 
-			public void actionPerformed(ActionEvent e)
-			{
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int returnValue = JOptionPane.YES_OPTION;
 				String currentTxtPath = treePanel.getTreeAtTxt().getTxtPath();
-				if (!hasModeified.get(currentTxtPath).booleanValue()) // txtPath对应文件没有修改
-				{
+				if (!hasModeified.get(currentTxtPath).booleanValue()) {// txtPath对应文件没有修改
 					// 新建
 					resetTreePanel();
-				}
-				else // 需要保存
-				{
-					int returnValue = JOptionPane.YES_OPTION;
+				} else {
 					returnValue = JOptionPane.showConfirmDialog(frame, "是否要保存,当前页面的内容。", "确认对话框",
 							JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
-					if (returnValue == JOptionPane.YES_OPTION)
-					{
-						ArrayList<TreePanelNode> treesOfSameTxt = new ArrayList<TreePanelNode>();
-						if (treePanel.getTreeLists().size() == 1)
-						{// 当前面板上只有一棵树是才可以保存
-							if (currentTxtPath == null)
-							{// 新建的面板，代表一个txt中只有一棵树
-								if (treePanel.getTreeLists().get(0).examTheTree()
-										&& treePanel.getTreeLists().get(0) != null)
-								{
-									try
-									{
-										SimpleDateFormat date = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
-										fileChooser.setSelectedFile(new File(date.format(new Date()) + ".txt"));
-										if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
-										{// 确定保存
-											currentTxtPath = fileChooser.getSelectedFile().toString();
-											FileOutputStream fos = new FileOutputStream(currentTxtPath);
-											OutputStreamWriter osw = new OutputStreamWriter(fos, charsetName);
-											BufferedWriter bw = new BufferedWriter(osw);
-											for (String word : treePanel.getTreeLists().get(0).changeIntoText())
-												bw.write(word);
-
-											hasModeified.remove(null);// 将没有设置位置和文件名的删除，因为已经为它保存到了指定文件中
-											hasModeified.put(currentTxtPath, Boolean.FALSE);
-											treePanel.setHasModeified(hasModeified);
-											treePanel.getTreeAtTxt().setTxtPath(currentTxtPath);// 修改文件的路径，之前是null
-
-											bw.close();
-
-											// 新建
+					if (returnValue == JOptionPane.YES_OPTION) {
+						if (treePanel.getTreeLists().size() == 1) {// 当前面板上只有一棵树是才可以保存
+							if (currentTxtPath == null) {// 新建的面板，代表一个txt中只有一棵树
+								if (treePanel.getTreeLists().get(0).examTheTree() && treePanel.getTreeLists().get(0) != null) {
+									try {
+										if(saveTreesToTxt(currentTxtPath))
 											resetTreePanel();
-
-										}
-										else
-										{// 点击了取消或退出对话框，什么也不用做
-
-										}
-
-									}
-									catch (IOException e1)
-									{
+									} catch (IOException e1) {
+										// TODO Auto-generated catch block
 										e1.printStackTrace();
-									}
+									}							
 
-								}
-								else
-								{
+								} else {
 									JOptionPane.showMessageDialog(frame, "结构树格式有错误,请检查。", "消息提示框",
 											JOptionPane.INFORMATION_MESSAGE);
 								}
 
-							}
-							else
-							{// 修改了打开的文件中的某棵树
-								for (TreeAtTxt tat : allTreesAtTxt)
-								{
-									if (tat.getTxtPath().equals(currentTxtPath))
-										treesOfSameTxt.add(tat.getTreeListWithOneTree().get(0));
-								}
-							}
-
-							if (!treesOfSameTxt.isEmpty())
-							{// 执行了上面的else
-								boolean correctFormat = true;
-								for (TreePanelNode treeRoot : treesOfSameTxt)
-								{
-									if (treeRoot.examTheTree() && treeRoot != null)
-									{
-
-									}
-									else
-									{
-										correctFormat = false;
-										break;
-									}
-								}
-								if (correctFormat == false)
-								{
-									JOptionPane.showMessageDialog(frame, "结构树格式有错误,请检查。", "消息提示框",
-											JOptionPane.INFORMATION_MESSAGE);
-								}
-								else
-								{
-									try
-									{
-										FileOutputStream fos = new FileOutputStream(currentTxtPath);
-										OutputStreamWriter osw = new OutputStreamWriter(fos, charsetName);
-										BufferedWriter bw = new BufferedWriter(osw);
-										for (TreePanelNode treeRoot : treesOfSameTxt)
-										{
-											for (String word : treeRoot.changeIntoText())
-												bw.write(word);
-											bw.write("\r\n");
-										}
-										hasModeified.put(currentTxtPath, Boolean.FALSE);
-										treePanel.setHasModeified(hasModeified);
-										bw.close();
-										// 新建
+							} else {// 修改了打开的文件中的某棵树
+							
+								try {
+									if(saveTreesToTxt(currentTxtPath))
 										resetTreePanel();
-
-									}
-									catch (IOException e1)
-									{
-										e1.printStackTrace();
-									}
+								} catch (IOException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
 								}
-
 							}
 
-						}
-						else
-						{// 当前面板不止一棵树/或者没有树
+						} else {// 当前面板不止一棵树/或者没有树
 							JOptionPane.showMessageDialog(frame, "画板上只有一棵树时才能保存。", "消息提示框",
 									JOptionPane.INFORMATION_MESSAGE);
 						}
 
-					}
-					else if (returnValue == JOptionPane.NO_OPTION) // 确认不保存
-					{
+					} else if (returnValue == JOptionPane.NO_OPTION) {
 						// 新建
 						resetTreePanel();
-					}
-					else // 点击了取消或者退出
-					{
+					} else {// 点击了取消或者退出
 						resetButtonstatus();
 						treePanel.initCombineNodes();
 						treePanel.setSelectedNodes(-1);
 						treePanel.repaint();
 					}
 				}
-				
 				resetButtonstatus();
 				treePanel.initCombineNodes();
 				treePanel.setSelectedNodes(-1);
@@ -350,177 +258,64 @@ public class TreeEditorTool
 		});
 
 		// 打开菜单
-		jmi_open.addActionListener(new ActionListener()
-		{
+		jmi_open.addActionListener(new ActionListener() {
 
-			public void actionPerformed(ActionEvent e)
-			{
+			@Override
+			public void actionPerformed(ActionEvent e) {
 				int returnValue = JOptionPane.YES_OPTION;
 				String currentTxtPath = treePanel.getTreeAtTxt().getTxtPath();
-				if (!hasModeified.get(currentTxtPath).booleanValue())
-				{// txtPath对应文件没有修改
+				if (!hasModeified.get(currentTxtPath).booleanValue()) {// txtPath对应文件没有修改
 					// 打开
-					try
-					{
+					try {
 						openTxts();
-					}
-					catch (IOException e1)
-					{
+					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
-				}
-				else
-				{
-					// TODO: 保存操作代码重复
+				} else {
 					returnValue = JOptionPane.showConfirmDialog(frame, "是否要保存,当前页面的内容。", "确认对话框",
 							JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
-					if (returnValue == JOptionPane.YES_OPTION)
-					{
+					if (returnValue == JOptionPane.YES_OPTION) {
 
-						ArrayList<TreePanelNode> treesOfSameTxt = new ArrayList<TreePanelNode>();
-						if (treePanel.getTreeLists().size() == 1)
-						{// 当前面板上只有一棵树是才可以保存
-							if (currentTxtPath == null)
-							{// 新建的面板，代表一个txt中只有一棵树
-								if (treePanel.getTreeLists().get(0).examTheTree()
-										&& treePanel.getTreeLists().get(0) != null)
-								{
-									try
-									{
-										SimpleDateFormat date = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
-										fileChooser.setSelectedFile(new File(date.format(new Date()) + ".txt"));
-										if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
-										{// 确定保存
-											currentTxtPath = fileChooser.getSelectedFile().toString();
-
-											FileOutputStream fos = new FileOutputStream(currentTxtPath);
-											OutputStreamWriter osw = new OutputStreamWriter(fos, charsetName);
-											BufferedWriter bw = new BufferedWriter(osw);
-
-											for (String word : treePanel.getTreeLists().get(0).changeIntoText())
-												bw.write(word);
-
-											hasModeified.remove(null);// 将没有设置位置和文件名的删除，因为已经为它保存到了指定文件中
-											hasModeified.put(currentTxtPath, Boolean.FALSE);
-											treePanel.setHasModeified(hasModeified);
-											treePanel.getTreeAtTxt().setTxtPath(currentTxtPath);// 修改文件的路径，之前是null
-											frame.setTitle(new File(currentTxtPath).getName() + "[ " + "1 / 1" + " ]");
-											bw.close();
-
-											// 打开
-											try
-											{
-												openTxts();
-											}
-											catch (IOException e1)
-											{
-												e1.printStackTrace();
-											}
-
-										}
-										else
-										{// 点击了取消或退出对话框，什么也不用做
-
-										}
-
-									}
-									catch (IOException e1)
-									{
-										e1.printStackTrace();
-									}
-
-								}
-								else
-								{
-									JOptionPane.showMessageDialog(frame, "结构树格式有错误,请检查。", "消息提示框",
-											JOptionPane.INFORMATION_MESSAGE);
-								}
-
-							}
-							else
-							{// 修改了打开的文件中的某棵树
-								for (TreeAtTxt tat : allTreesAtTxt)
-								{
-									if (tat.getTxtPath().equals(currentTxtPath))
-										treesOfSameTxt.add(tat.getTreeListWithOneTree().get(0));
-								}
-							}
-
-							if (!treesOfSameTxt.isEmpty())
-							{// 执行了上面的else
-								boolean correctFormat = true;
-								for (TreePanelNode treeRoot : treesOfSameTxt)
-								{
-									if (treeRoot.examTheTree() && treeRoot != null)
-									{
-
-									}
-									else
-									{
-										correctFormat = false;
-										break;
-									}
-								}
-								if (correctFormat == false)
-								{
-									JOptionPane.showMessageDialog(frame, "结构树格式有错误,请检查。", "消息提示框",
-											JOptionPane.INFORMATION_MESSAGE);
-								}
-								else
-								{
-									try
-									{
-										FileOutputStream fow = new FileOutputStream(currentTxtPath);
-										OutputStreamWriter osw = new OutputStreamWriter(fow, charsetName);
-										BufferedWriter bw = new BufferedWriter(osw);
-										for (TreePanelNode treeRoot : treesOfSameTxt)
-										{
-											for (String word : treeRoot.changeIntoText())
-												bw.write(word);
-											bw.write("\r\n");
-										}
-										hasModeified.put(currentTxtPath, Boolean.FALSE);
-										treePanel.setHasModeified(hasModeified);
-										bw.close();
-										// 打开
-										try
-										{
+						if (treePanel.getTreeLists().size() == 1) {// 当前面板上只有一棵树是才可以保存
+							if (currentTxtPath == null) {// 新建的面板，代表一个txt中只有一棵树
+								if (treePanel.getTreeLists().get(0).examTheTree() && treePanel.getTreeLists().get(0) != null) {
+									try {
+										if(saveTreesToTxt(currentTxtPath))
 											openTxts();
-										}
-										catch (IOException e1)
-										{
-											e1.printStackTrace();
-										}
-
-									}
-									catch (IOException e1)
-									{
+									} catch (IOException e1) {
+										// TODO Auto-generated catch block
 										e1.printStackTrace();
 									}
+
+								} else {
+									JOptionPane.showMessageDialog(frame, "结构树格式有错误,请检查。", "消息提示框",
+											JOptionPane.INFORMATION_MESSAGE);
+								}
+
+							} else {// 修改了打开的文件中的某棵树
+								try {
+									if (saveTreesToTxt(currentTxtPath))
+
+										openTxts();
+								} catch (IOException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
 								}
 							}
-						}
-						else
-						{// 当前面板不止一棵树/或者没有树
+
+						} else {// 当前面板不止一棵树/或者没有树
 							JOptionPane.showMessageDialog(frame, "画板上只有一棵树时才能保存。", "消息提示框",
 									JOptionPane.INFORMATION_MESSAGE);
 						}
 
-					}
-					else if (returnValue == JOptionPane.NO_OPTION)
-					{
+					} else if (returnValue == JOptionPane.NO_OPTION) {
 						// 打开
-						try
-						{
+						try {
 							openTxts();
-						}
-						catch (IOException e1)
-						{
+						} catch (IOException e1) {
 							e1.printStackTrace();
 						}
-					}
-					else
-					{// 点击了取消或者退出
+					} else {// 点击了取消或者退出
 
 					}
 				}
@@ -532,129 +327,36 @@ public class TreeEditorTool
 		});
 
 		// 保存菜单
-		jmi_save.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				// TODO: 保存操作代码重复
-				if (treePanel.getHasModeified().get(treePanel.getTreeAtTxt().getTxtPath()))
-				{// 文件被修改过
-					if (treePanel.getTreeLists().size() != 1)
-					{
+		jmi_save.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String currentTxtPath = treePanel.getTreeAtTxt().getTxtPath();
+				if (treePanel.getHasModeified().get(treePanel.getTreeAtTxt().getTxtPath())) {// 文件被修改过
+					if (treePanel.getTreeLists().size() != 1) {
 						JOptionPane.showMessageDialog(frame, "保存时画板必须只有一棵树", "消息提示框", JOptionPane.INFORMATION_MESSAGE);
-					}
-					else
-					{// 要保存的面板中只有一棵树
-						if (treePanel.getTreeLists().get(0).examTheTree() && treePanel.getTreeLists().get(0) != null)
-						{// 格式正确
-							if (treePanel.getTreeAtTxt().getTxtPath() == null)
-							{// 还没有为当前文件设置路径和名称
-								SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
-								fileChooser.setSelectedFile(new File(sdf.format(new Date()) + ".txt"));
-								if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
-								{
-									String currentTxtPath = fileChooser.getSelectedFile().toString();
-									try
-									{
-										FileOutputStream fos = new FileOutputStream(currentTxtPath);
-										OutputStreamWriter osw = new OutputStreamWriter(fos, charsetName);
-										BufferedWriter bw = new BufferedWriter(osw);
-										for (String word : treePanel.getTreeLists().get(0).changeIntoText())
-											bw.write(word);
-
-										hasModeified.remove(null);// 将没有设置位置和文件名的删除，因为已经为它保存到了指定文件中
-										hasModeified.put(currentTxtPath, Boolean.FALSE);
-										treePanel.setHasModeified(hasModeified);
-										treePanel.getTreeAtTxt().setTxtPath(currentTxtPath);// 修改文件的路径，之前是null
-										resetButtonstatus();
-										treePanel.setSelectedNodes(-1);
-										treePanel.initCombineNodes();
-										frame.setTitle(fileChooser.getSelectedFile().getName() + "[ " + "1 / 1" + " ]");
-										treePanel.repaint();
-										bw.close();
-									}
-									catch (IOException e1)
-									{
-										e1.printStackTrace();
-									}
-								}
+					} else {// 要保存的面板中只有一棵树
+						if (treePanel.getTreeLists().get(0).examTheTree() && treePanel.getTreeLists().get(0) != null) {// 格式正确
+							try {
+								saveTreesToTxt(currentTxtPath);
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
 							}
-							else
-							{// 该文件是打开已有的文本
-								String currentTxtPath = treePanel.getTreeAtTxt().getTxtPath();
-								ArrayList<TreePanelNode> treesOfSameTxt = new ArrayList<TreePanelNode>();
-								for (TreeAtTxt tat : allTreesAtTxt)
-								{
-									if (tat.getTxtPath().equals(currentTxtPath))
-										treesOfSameTxt.add(tat.getTreeListWithOneTree().get(0));
-								}
-								if (!treesOfSameTxt.isEmpty())
-								{
-									boolean correctFormat = true;
-									for (TreePanelNode treeRoot : treesOfSameTxt)
-									{// 检查树的格式是否正确
-										if (treeRoot.examTheTree() && treeRoot != null)
-										{
+							resetButtonstatus();
+							treePanel.setSelectedNodes(-1);
+							treePanel.initCombineNodes();
+							treePanel.repaint();
 
-										}
-										else
-										{
-											correctFormat = false;
-											break;
-										}
-									}
-									if (correctFormat == false)
-									{
-										JOptionPane.showMessageDialog(frame, "结构树格式有错误,请检查。", "消息提示框",
-												JOptionPane.INFORMATION_MESSAGE);
-									}
-									else
-									{
-										try
-										{
-
-											FileOutputStream fos = new FileOutputStream(currentTxtPath);
-											OutputStreamWriter osw = new OutputStreamWriter(fos, charsetName);
-											BufferedWriter bw = new BufferedWriter(osw);
-											for (TreePanelNode treeRoot : treesOfSameTxt)
-											{
-												for (String word : treeRoot.changeIntoText())
-													bw.write(word);
-												bw.write("\r\n");
-											}
-											// 修改面板的部分状态
-											hasModeified.put(currentTxtPath, Boolean.FALSE);
-											treePanel.setHasModeified(hasModeified);
-											resetButtonstatus();
-											treePanel.setSelectedNodes(-1);
-											treePanel.initCombineNodes();
-											treePanel.repaint();
-											bw.close();
-
-										}
-										catch (IOException e1)
-										{
-											e1.printStackTrace();
-										}
-									}
-
-								}
-							}
-						}
-						else
-						{// 格式不正确
-							JOptionPane.showMessageDialog(frame, "树的格式不正确。", "树的格式不正确",
-									JOptionPane.INFORMATION_MESSAGE);
+						} else {// 格式不正确
+							JOptionPane.showMessageDialog(frame, "树的格式不正确。", "树的格式不正确", JOptionPane.INFORMATION_MESSAGE);
 							resetButtonstatus();
 							treePanel.setSelectedNodes(-1);
 							treePanel.initCombineNodes();
 							treePanel.repaint();
 						}
 					}
-				}
-				else
-				{// 文件没有被修改
-					// 暂时认为不用管
+				} else {// 文件没有被修改
+						// 暂时认为不用管
 					resetButtonstatus();
 					treePanel.setSelectedNodes(-1);
 					treePanel.initCombineNodes();
@@ -1150,164 +852,78 @@ public class TreeEditorTool
 		});
 		
 		// 下一棵按钮
-		rightTree.addActionListener(new ActionListener()
-		{
+		rightTree.addActionListener(new ActionListener() {
 
-			public void actionPerformed(ActionEvent e)
-			{
+			@Override
+			public void actionPerformed(ActionEvent e) {
 				int returnValue = JOptionPane.YES_OPTION;
 				String currentTxtPath = treePanel.getTreeAtTxt().getTxtPath();
-				if (!hasModeified.get(currentTxtPath).booleanValue())
-				{// txtPath对应文件没有修改
+				if (!hasModeified.get(currentTxtPath).booleanValue()) {// txtPath对应文件没有修改
 					// 向右滑动
 					if (!nextTreeLists(TreeEditorTool.RIGHT)) // 向右滑动失败
 						JOptionPane.showMessageDialog(null, "已经到最后一篇文档的最后一棵树。", "向右滑动",
 								JOptionPane.INFORMATION_MESSAGE);
-					else
-					{
+					else {
 						rightTree.setBackground(Color.green);
 						rightTree.setBackground((Color) new ColorUIResource(238, 238, 238));
 					}
-				}
-				else
-				{
-					returnValue = JOptionPane.showConfirmDialog(frame, "必须先保存当前界面上的树。", "确认对话框",
+				} else {
+					returnValue = JOptionPane.showConfirmDialog(frame, "必须先保存当前界面上的树,保存请点击确认。", "确认对话框",
 							JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
-					if (returnValue == JOptionPane.YES_OPTION)
-					{
+					if (returnValue == JOptionPane.YES_OPTION) {
 
-						ArrayList<TreePanelNode> treesOfSameTxt = new ArrayList<TreePanelNode>();
-						if (treePanel.getTreeLists().size() == 1)
-						{// 当前面板上只有一棵树是才可以保存
-							if (currentTxtPath == null)
-							{// 新建的面板，代表一个txt中只有一棵树
-								if (treePanel.getTreeLists().get(0).examTheTree()
-										&& treePanel.getTreeLists().get(0) != null)
-								{
-									try
-									{
-										SimpleDateFormat date = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
-										fileChooser.setSelectedFile(new File(date.format(new Date()) + ".txt"));
-										if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
-										{// 确定保存
-											currentTxtPath = fileChooser.getSelectedFile().toString();
-											FileOutputStream fos = new FileOutputStream(currentTxtPath);
-											OutputStreamWriter osw = new OutputStreamWriter(fos, charsetName);
-											BufferedWriter bw = new BufferedWriter(osw);
-											for (String word : treePanel.getTreeLists().get(0).changeIntoText())
-												bw.write(word);
-
-											hasModeified.remove(null);// 将没有设置位置和文件名的删除，因为已经为它保存到了指定文件中
-											hasModeified.put(currentTxtPath, Boolean.FALSE);
-											treePanel.setHasModeified(hasModeified);
-											treeAtTxt.setTxtPath(currentTxtPath);
-											treePanel.getTreeAtTxt().setTxtPath(currentTxtPath);// 修改文件的路径，之前是null
-											frame.setTitle(new File(currentTxtPath).getName() + "[ " + "1 / 1" + " ]");
-											bw.close();
-
+						if (treePanel.getTreeLists().size() == 1) {// 当前面板上只有一棵树是才可以保存
+							if (currentTxtPath == null) {// 新建的面板，代表一个txt中只有一棵树
+								if (treePanel.getTreeLists().get(0).examTheTree() && treePanel.getTreeLists().get(0) != null) {
+									try {
+										if(saveTreesToTxt(currentTxtPath)){
 											// 向右滑动
-											if (!nextTreeLists(TreeEditorTool.RIGHT)) // 向右滑动失败
-												JOptionPane.showMessageDialog(null, "已经到最后一篇文档的最后一棵树。", "向右滑动",
-														JOptionPane.INFORMATION_MESSAGE);
-
+												if (!nextTreeLists(TreeEditorTool.RIGHT)) 
+													// 向右滑动失败
+													JOptionPane.showMessageDialog(null, "已经到最后一篇文档的最后一棵树。", "向右滑动",
+															JOptionPane.INFORMATION_MESSAGE);
 										}
-										else
-										{// 点击了取消或退出对话框，什么也不用做
-
-										}
-
-									}
-									catch (IOException e1)
-									{
+									} catch (HeadlessException | IOException e1) {
+										// TODO Auto-generated catch block
 										e1.printStackTrace();
 									}
-
-								}
-								else
-								{
+								} else {
 									JOptionPane.showMessageDialog(frame, "结构树格式有错误,请检查。", "消息提示框",
 											JOptionPane.INFORMATION_MESSAGE);
 								}
 
-							}
-							else
-							{// 修改了打开的文件中的某棵树
-								for (TreeAtTxt tat : allTreesAtTxt)
-								{
-									if (tat.getTxtPath().equals(currentTxtPath))
-										treesOfSameTxt.add(tat.getTreeListWithOneTree().get(0));
-								}
-							}
+							} else {// 修改了打开的文件中的某棵树
 
-							if (!treesOfSameTxt.isEmpty())
-							{// 执行了上面的else
-								boolean correctFormat = true;
-								for (TreePanelNode treeRoot : treesOfSameTxt)
-								{
-									if (treeRoot.examTheTree() && treeRoot != null)
-									{
-
-									}
-									else
-									{
-										correctFormat = false;
-										break;
-									}
-								}
-								if (correctFormat == false)
-								{
-									JOptionPane.showMessageDialog(frame, "结构树格式有错误,请检查。", "消息提示框",
-											JOptionPane.INFORMATION_MESSAGE);
-								}
-								else
-								{
-									try
-									{
-										FileOutputStream fos = new FileOutputStream(currentTxtPath);
-										OutputStreamWriter osw = new OutputStreamWriter(fos, charsetName);
-										BufferedWriter bw = new BufferedWriter(osw);
-										for (TreePanelNode treeRoot : treesOfSameTxt)
-										{
-											for (String word : treeRoot.changeIntoText())
-												bw.write(word);
-											bw.write("\r\n");
-										}
-										hasModeified.put(currentTxtPath, Boolean.FALSE);
-										treePanel.setHasModeified(hasModeified);
-										bw.close();
+								try {
+									if (saveTreesToTxt(currentTxtPath)) {
 										// 向右滑动
-										if (!nextTreeLists(TreeEditorTool.RIGHT)) // 向右滑动失败
+										if (!nextTreeLists(TreeEditorTool.RIGHT))
+											// 向右滑动失败
 											JOptionPane.showMessageDialog(null, "已经到最后一篇文档的最后一棵树。", "向右滑动",
 													JOptionPane.INFORMATION_MESSAGE);
-
 									}
-									catch (IOException e1)
-									{
-										e1.printStackTrace();
-									}
+								} catch (HeadlessException | IOException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
 								}
-
+								
 							}
 
-						}
-						else
-						{// 当前面板不止一棵树/或者没有树
+							
+
+						} else {// 当前面板不止一棵树/或者没有树
 							JOptionPane.showMessageDialog(frame, "画板上只有一棵树时才能保存。", "消息提示框",
 									JOptionPane.INFORMATION_MESSAGE);
 						}
 
-					}
-					else if (returnValue == JOptionPane.NO_OPTION)
-					{
+					} else if (returnValue == JOptionPane.NO_OPTION) {
 						hasModeified.put(currentTxtPath, Boolean.FALSE);
 						treePanel.setHasModeified(hasModeified);
 						// 向右滑动
 						if (!nextTreeLists(TreeEditorTool.RIGHT)) // 向右滑动失败
 							JOptionPane.showMessageDialog(null, "已经到最后一篇文档的最后一棵树。", "向右滑动",
 									JOptionPane.INFORMATION_MESSAGE);
-					}
-					else
-					{// 点击了取消或者退出
+					} else {// 点击了取消或者退出
 					}
 				}
 				resetButtonstatus();
@@ -1318,157 +934,67 @@ public class TreeEditorTool
 		});
 		
 		// 上一棵按钮
-		leftTree.addActionListener(new ActionListener()
-		{
+		leftTree.addActionListener(new ActionListener() {
 
-			public void actionPerformed(ActionEvent e)
-			{
+			@Override
+			public void actionPerformed(ActionEvent e) {
 				int returnValue = JOptionPane.YES_OPTION;
 				String currentTxtPath = treePanel.getTreeAtTxt().getTxtPath();
-				if (!hasModeified.get(currentTxtPath).booleanValue())
-				{// txtPath对应文件没有修改
+				if (!hasModeified.get(currentTxtPath).booleanValue()) {// txtPath对应文件没有修改
 					// 向左滑动
 					if (!nextTreeLists(TreeEditorTool.LEFT)) // 向左滑动失败
 						JOptionPane.showMessageDialog(null, "已经到第一篇文档的第一棵树。", "向左滑动", JOptionPane.INFORMATION_MESSAGE);
-				}
-				else
-				{
+				} else {
 					returnValue = JOptionPane.showConfirmDialog(frame, "请先保存当前页面的内容。", "确认对话框",
 							JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
-					if (returnValue == JOptionPane.YES_OPTION)
-					{
-						ArrayList<TreePanelNode> treesOfSameTxt = new ArrayList<TreePanelNode>();
-						if (treePanel.getTreeLists().size() == 1)
-						{// 当前面板上只有一棵树是才可以保存
-							if (currentTxtPath == null)
-							{// 新建的面板，代表一个txt中只有一棵树
-								if (treePanel.getTreeLists().get(0).examTheTree()
-										&& treePanel.getTreeLists().get(0) != null)
-								{
-									try
-									{
-										SimpleDateFormat date = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
-										fileChooser.setSelectedFile(new File(date.format(new Date()) + ".txt"));
-										if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
-										{// 确定保存
-											currentTxtPath = fileChooser.getSelectedFile().toString();
-											FileOutputStream fos = new FileOutputStream(currentTxtPath);
-											OutputStreamWriter osw = new OutputStreamWriter(fos, charsetName);
-											BufferedWriter bw = new BufferedWriter(osw);
-											for (String word : treePanel.getTreeLists().get(0).changeIntoText())
-												bw.write(word);
-
-											hasModeified.remove(null);// 将没有设置位置和文件名的删除，因为已经为它保存到了指定文件中
-											hasModeified.put(currentTxtPath, Boolean.FALSE);
-											treePanel.setHasModeified(hasModeified);
-											treeAtTxt.setTxtPath(currentTxtPath);
-											treePanel.getTreeAtTxt().setTxtPath(currentTxtPath);// 修改文件的路径，之前是null
-											frame.setTitle(new File(currentTxtPath).getName() + "[ " + "1 / 1" + " ]");
-											bw.close();
-
+					if (returnValue == JOptionPane.YES_OPTION) {
+						if (treePanel.getTreeLists().size() == 1) {// 当前面板上只有一棵树是才可以保存
+							if (currentTxtPath == null) {// 新建的面板，代表一个txt中只有一棵树
+								if (treePanel.getTreeLists().get(0).examTheTree() && treePanel.getTreeLists().get(0) != null) {
+									try {
+										if(saveTreesToTxt(currentTxtPath))
 											// 向左滑动
-											if (!nextTreeLists(TreeEditorTool.LEFT)) // 向左滑动失败
+											if (!nextTreeLists(TreeEditorTool.LEFT)) 
+												// 向左滑动失败
 												JOptionPane.showMessageDialog(null, "已经到第一篇文档的第一棵树。", "向左滑动",
 														JOptionPane.INFORMATION_MESSAGE);
-
-										}
-										else
-										{// 点击了取消或退出对话框，什么也不用做
-
-										}
-
-									}
-									catch (IOException e1)
-									{
+									} catch (HeadlessException | IOException e1) {
+										// TODO Auto-generated catch block
 										e1.printStackTrace();
 									}
 
-								}
-								else
-								{
+								} else {
 									JOptionPane.showMessageDialog(frame, "结构树格式有错误,请检查。", "消息提示框",
 											JOptionPane.INFORMATION_MESSAGE);
 								}
 
-							}
-							else
-							{// 修改了打开的文件中的某棵树
-								for (TreeAtTxt tat : allTreesAtTxt)
-								{
-									if (tat.getTxtPath().equals(currentTxtPath))
-										treesOfSameTxt.add(tat.getTreeListWithOneTree().get(0));
-								}
-							}
-
-							if (!treesOfSameTxt.isEmpty())
-							{// 执行了上面的else
-								boolean correctFormat = true;
-								for (TreePanelNode treeRoot : treesOfSameTxt)
-								{
-									if (treeRoot.examTheTree() && treeRoot != null)
-									{
-
-									}
-									else
-									{
-										correctFormat = false;
-										break;
-									}
-								}
-								if (correctFormat == false)
-								{
-									JOptionPane.showMessageDialog(frame, "结构树格式有错误,请检查。", "消息提示框",
-											JOptionPane.INFORMATION_MESSAGE);
-								}
-								else
-								{
-									try
-									{
-										FileOutputStream fos = new FileOutputStream(currentTxtPath);
-										OutputStreamWriter osw = new OutputStreamWriter(fos, charsetName);
-										BufferedWriter bw = new BufferedWriter(osw);
-										for (TreePanelNode treeRoot : treesOfSameTxt)
-										{
-											for (String word : treeRoot.changeIntoText())
-												bw.write(word);
-											bw.write("\r\n");
-										}
-										hasModeified.put(currentTxtPath, Boolean.FALSE);
-										treePanel.setHasModeified(hasModeified);
-										bw.close();
+							} else {// 修改了打开的文件中的某棵树
+								try {
+									if(saveTreesToTxt(currentTxtPath))
 										// 向左滑动
-										if (!nextTreeLists(TreeEditorTool.LEFT)) // 向左滑动失败
+										if (!nextTreeLists(TreeEditorTool.LEFT)) 
+											// 向左滑动失败
 											JOptionPane.showMessageDialog(null, "已经到第一篇文档的第一棵树。", "向左滑动",
 													JOptionPane.INFORMATION_MESSAGE);
-
-									}
-									catch (IOException e1)
-									{
-										e1.printStackTrace();
-									}
+								} catch (HeadlessException | IOException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
 								}
-
 							}
 
-						}
-						else
-						{// 当前面板不止一棵树/或者没有树
+						} else {// 当前面板不止一棵树/或者没有树
 							JOptionPane.showMessageDialog(frame, "画板上只有一棵树时才能保存。", "消息提示框",
 									JOptionPane.INFORMATION_MESSAGE);
 						}
 
-					}
-					else if (returnValue == JOptionPane.NO_OPTION)
-					{
+					} else if (returnValue == JOptionPane.NO_OPTION) {
 						// 向左滑动
 						hasModeified.put(currentTxtPath, Boolean.FALSE);
 						treePanel.setHasModeified(hasModeified);
 						if (!nextTreeLists(TreeEditorTool.LEFT)) // 向左滑动失败
 							JOptionPane.showMessageDialog(null, "已经到第一篇文档的第一棵树。", "向左滑动",
 									JOptionPane.INFORMATION_MESSAGE);
-					}
-					else
-					{// 点击了取消或者退出
+					} else {// 点击了取消或者退出
 					}
 				}
 				resetButtonstatus();
@@ -1478,6 +1004,7 @@ public class TreeEditorTool
 			}
 		});
 	}
+
 
 	private void resetButtonstatus()
 	{
@@ -1648,6 +1175,69 @@ public class TreeEditorTool
 		}
 	}
 
+	private boolean saveTreesToTxt(String currentTxtPath) throws IOException {
+		if (currentTxtPath == null) {
+			SimpleDateFormat date = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
+			fileChooser.setSelectedFile(new File(date.format(new Date()) + ".txt"));
+			if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {// 确定保存
+				currentTxtPath = fileChooser.getSelectedFile().toString();
+				FileOutputStream fos = new FileOutputStream(currentTxtPath);
+				OutputStreamWriter osw = new OutputStreamWriter(fos, charsetName);
+				BufferedWriter bw = new BufferedWriter(osw);
+				for (String word : treePanel.getTreeLists().get(0).changeIntoText())
+					bw.write(word);
+
+				hasModeified.remove(null);// 将没有设置位置和文件名的删除，因为已经为它保存到了指定文件中
+				hasModeified.put(currentTxtPath, Boolean.FALSE);
+				treePanel.setHasModeified(hasModeified);
+				treePanel.getTreeAtTxt().setTxtPath(currentTxtPath);// 修改文件的路径，之前是null
+				frame.setTitle(new File(currentTxtPath).getName() + "[ " + "1 / 1" + " ]");
+				bw.close();
+
+				return true;
+			} else {// 点击了取消或退出对话框，什么也不用做
+				return false;
+			}
+		} else {
+			ArrayList<TreePanelNode> treesOfSameTxt = new ArrayList<TreePanelNode>();
+			for (TreeAtTxt tat : allTreesAtTxt) {
+				if (tat.getTxtPath().equals(currentTxtPath))
+					treesOfSameTxt.add(tat.getTreeListWithOneTree().get(0));
+			}
+			boolean correctFormat = true;
+			for (TreePanelNode treeRoot : treesOfSameTxt) {
+				if (treeRoot.examTheTree() && treeRoot != null) {
+
+				} else {
+					correctFormat = false;
+					break;
+				}
+			}
+			if (correctFormat == false) {
+				JOptionPane.showMessageDialog(frame, "结构树格式有错误,请检查。", "消息提示框", JOptionPane.INFORMATION_MESSAGE);
+				return false;
+			} else {
+				try {
+					FileOutputStream fos = new FileOutputStream(currentTxtPath);
+					OutputStreamWriter osw = new OutputStreamWriter(fos, charsetName);
+					BufferedWriter bw = new BufferedWriter(osw);
+					for (TreePanelNode treeRoot : treesOfSameTxt) {
+						for (String word : treeRoot.changeIntoText())
+							bw.write(word);
+						bw.write("\r\n");
+					}
+					hasModeified.put(currentTxtPath, Boolean.FALSE);
+					treePanel.setHasModeified(hasModeified);
+
+					bw.close();
+
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				return true;
+			}
+		}
+	}
 	private void coreNLPInit()
 	{
 		Properties props = new Properties();
