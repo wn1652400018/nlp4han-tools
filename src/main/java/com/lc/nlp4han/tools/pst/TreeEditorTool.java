@@ -62,16 +62,16 @@ public class TreeEditorTool
 	private JTextArea editRawText = new JTextArea(2, 80);
 	private JTextArea editBracket = new JTextArea(8, 80);
 
-	private JButton toTreeButtion = new JButton("生成结构树");
-	private JButton outputButton = new JButton("导出到文件");
-	private JButton rePaintButton = new JButton("重画结构树");
-	private JButton updateBracketButton = new JButton("更新表达式");
-	private JButton parseButton = new JButton("句法分析");
+//	private JButton toTreeButtion = new JButton("生成结构树");
+//	private JButton outputButton = new JButton("导出到文件");
+//	private JButton rePaintButton = new JButton("重画结构树");
+//	private JButton updateBracketButton = new JButton("更新表达式");
+//	private JButton parseButton = new JButton("句法分析");
 
-	private JFileChooser fileChooser = new JFileChooser();
-	private TxtFileFilter txtFileFilter = new TxtFileFilter();
+//	private JFileChooser fileChooser = new JFileChooser();
+//	private TxtFileFilter txtFileFilter = new TxtFileFilter();
 
-	private static String charsetName = "gbk";// 默认读取文本编码为gbk
+	private static String charsetName = "GBK";// 默认读取文本编码为gbk
 
 	private Vector<TreePanelNode> nodes = new Vector<TreePanelNode>();
 	private ArrayList<TreePanelNode> treeLists = new ArrayList<TreePanelNode>();
@@ -84,7 +84,6 @@ public class TreeEditorTool
 	private static int RIGHT = 0, LEFT = -1;// 表示左右滑动
 
 	private StanfordCoreNLP pipeline;
-//	private Annotation annotation;
 
 	public void init()
 	{
@@ -102,6 +101,11 @@ public class TreeEditorTool
 		paintjsp = new JScrollPane(treePanel);
 
 		JPanel buttonPanel = new JPanel();
+		JButton toTreeButtion = new JButton("生成结构树");
+		JButton outputButton = new JButton("导出到文件");
+		JButton rePaintButton = new JButton("重画结构树");
+		JButton updateBracketButton = new JButton("更新表达式");
+		JButton parseButton = new JButton("句法分析");
 		buttonPanel.add(parseButton);
 		buttonPanel.add(Box.createVerticalStrut(8));
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
@@ -119,20 +123,20 @@ public class TreeEditorTool
 		JMenuItem jmi_new = new JMenuItem("新建");
 		JMenuItem jmi_open = new JMenuItem("打开...");
 		JMenuItem jmi_save = new JMenuItem("保存");
-		JMenuItem jmi_saveAs = new JMenuItem("另存为...");
-		
+		JMenuItem jmi_saveAs = new JMenuItem("另存为...");	
 		JMenuItem jmiExit = new JMenuItem("退出");
 
-		JMenu menuCharset = new JMenu("编码");
-		JMenuItem jmi_gbk = new JMenuItem("gbk");
-		JMenuItem jmi_utf_8 = new JMenuItem("utf-8");
-		jmi_gbk.setBackground(Color.GREEN);
 		menuFile.add(jmi_new);
 		menuFile.add(jmi_open);
 		menuFile.add(jmi_save);
 		menuFile.add(jmi_saveAs);
+		menuFile.addSeparator();
 		menuFile.add(jmiExit);
 		
+		JMenu menuCharset = new JMenu("编码");
+		JMenuItem jmi_gbk = new JMenuItem("GBK");
+		JMenuItem jmi_utf_8 = new JMenuItem("UTF-8");
+		jmi_gbk.setBackground(Color.GREEN);
 		menuCharset.add(jmi_gbk);
 		menuCharset.add(jmi_utf_8);
 		
@@ -215,7 +219,6 @@ public class TreeEditorTool
 										if(saveTreesToTxt(currentTxtPath))
 											resetTreePanel();
 									} catch (IOException e1) {
-										// TODO Auto-generated catch block
 										e1.printStackTrace();
 									}							
 
@@ -230,7 +233,6 @@ public class TreeEditorTool
 									if(saveTreesToTxt(currentTxtPath))
 										resetTreePanel();
 								} catch (IOException e1) {
-									// TODO Auto-generated catch block
 									e1.printStackTrace();
 								}
 							}
@@ -283,7 +285,6 @@ public class TreeEditorTool
 										if(saveTreesToTxt(currentTxtPath))
 											openTxts();
 									} catch (IOException e1) {
-										// TODO Auto-generated catch block
 										e1.printStackTrace();
 									}
 
@@ -298,7 +299,6 @@ public class TreeEditorTool
 
 										openTxts();
 								} catch (IOException e1) {
-									// TODO Auto-generated catch block
 									e1.printStackTrace();
 								}
 							}
@@ -339,7 +339,6 @@ public class TreeEditorTool
 							try {
 								saveTreesToTxt(currentTxtPath);
 							} catch (IOException e1) {
-								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
 							resetButtonstatus();
@@ -399,7 +398,8 @@ public class TreeEditorTool
 					{
 						int count = 0;
 						SimpleDateFormat date = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
-						System.out.println(date.format(new Date()) + ".txt");
+//						System.out.println(date.format(new Date()) + ".txt");
+						JFileChooser fileChooser = new JFileChooser();
 						fileChooser.setSelectedFile(new File(date.format(new Date()) + ".txt"));
 						if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
 						{// 确定保存
@@ -448,7 +448,7 @@ public class TreeEditorTool
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				charsetName = "gbk";
+				charsetName = "GBK";
 				jmi_utf_8.setBackground((Color) new ColorUIResource(238, 238, 238));
 				jmi_gbk.setBackground(Color.green);
 			}
@@ -459,7 +459,7 @@ public class TreeEditorTool
 
 			public void actionPerformed(ActionEvent e)
 			{
-				charsetName = "utf-8";
+				charsetName = "UTF-8";
 				jmi_gbk.setBackground((Color) new ColorUIResource(238, 238, 238));
 				jmi_utf_8.setBackground(Color.GREEN);
 			}
@@ -591,7 +591,8 @@ public class TreeEditorTool
 					{
 						int count = 0;
 						SimpleDateFormat date = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
-						System.out.println(date.format(new Date()) + ".txt");
+//						System.out.println(date.format(new Date()) + ".txt");
+						JFileChooser fileChooser = new JFileChooser();
 						fileChooser.setSelectedFile(new File(date.format(new Date()) + ".txt"));
 						if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
 						{// 确定保存
@@ -884,7 +885,6 @@ public class TreeEditorTool
 															JOptionPane.INFORMATION_MESSAGE);
 										}
 									} catch (HeadlessException | IOException e1) {
-										// TODO Auto-generated catch block
 										e1.printStackTrace();
 									}
 								} else {
@@ -903,7 +903,6 @@ public class TreeEditorTool
 													JOptionPane.INFORMATION_MESSAGE);
 									}
 								} catch (HeadlessException | IOException e1) {
-									// TODO Auto-generated catch block
 									e1.printStackTrace();
 								}
 								
@@ -959,7 +958,6 @@ public class TreeEditorTool
 												JOptionPane.showMessageDialog(null, "已经到第一篇文档的第一棵树。", "向左滑动",
 														JOptionPane.INFORMATION_MESSAGE);
 									} catch (HeadlessException | IOException e1) {
-										// TODO Auto-generated catch block
 										e1.printStackTrace();
 									}
 
@@ -977,7 +975,6 @@ public class TreeEditorTool
 											JOptionPane.showMessageDialog(null, "已经到第一篇文档的第一棵树。", "向左滑动",
 													JOptionPane.INFORMATION_MESSAGE);
 								} catch (HeadlessException | IOException e1) {
-									// TODO Auto-generated catch block
 									e1.printStackTrace();
 								}
 							}
@@ -1005,7 +1002,7 @@ public class TreeEditorTool
 		});
 	}
 
-
+	// 复位树编辑按钮
 	private void resetButtonstatus()
 	{
 		treePanel.setDelete_Clicked(false);
@@ -1021,6 +1018,7 @@ public class TreeEditorTool
 		treePanel.getSelectRoot().setBackground((Color) new ColorUIResource(238, 238, 238));
 	}
 
+	// 重置树编辑区域
 	private void resetTreePanel()
 	{
 		treeLists.clear();
@@ -1028,20 +1026,25 @@ public class TreeEditorTool
 		nodes.clear();
 		hasModeified.clear();
 		hasModeified.put(null, Boolean.FALSE);
+		
 		treeAtTxt = new TreeAtTxt(treeLists);
 		allTreesAtTxt.add(treeAtTxt);
+		
 		treePanel.setTreeLists(treeLists);
 		treePanel.setNodes(nodes);
 		treePanel.setHasModeified(hasModeified);
-		treePanel.setTreeAtTxt(treeAtTxt);
-		resetButtonstatus();
+		treePanel.setTreeAtTxt(treeAtTxt);	
 		treePanel.setSelectedNodes(-1);
 		treePanel.initCombineNodes();
 		treePanel.repaint();
+		
+		resetButtonstatus();
+		
 		frame.setTitle("未命名.txt" + "[ " + 1 + " / " + 1 + " ]");
-		System.out.println("面板被清空了");
+//		System.out.println("面板被清空了");
 	}
 
+	// 前后移动打开的树
 	private boolean nextTreeLists(int direction)
 	{
 		int sizeOfTrees = allTreesAtTxt.size();
@@ -1054,22 +1057,28 @@ public class TreeEditorTool
 				treeLists = allTreesAtTxt.get(positionOfTreeAtList - 1).getTreeListWithOneTree();
 				nodes = TreePanelNode.nodesOfAllTrees(treeLists);
 				treeAtTxt = allTreesAtTxt.get(positionOfTreeAtList - 1);
+				
 				treePanel.setTreeLists(treeLists);
 				treePanel.setNodes(nodes);
 				treePanel.setTreeAtTxt(treeAtTxt);
-				resetButtonstatus();
+//				resetButtonstatus();
 				treePanel.setSelectedNodes(-1);
 				treePanel.initCombineNodes();
-				treePanel.setTreeLists(treeLists);
-				treePanel.setNodes(nodes);
+//				treePanel.setTreeLists(treeLists);
+//				treePanel.setNodes(nodes);
 				treePanel.setHasModeified(hasModeified);
-				treePanel.setTreeAtTxt(treeAtTxt);
+//				treePanel.setTreeAtTxt(treeAtTxt);
+//				resetButtonstatus();
+//				treePanel.setSelectedNodes(-1);
+//				treePanel.initCombineNodes();
+				
 				resetButtonstatus();
-				treePanel.setSelectedNodes(-1);
-				treePanel.initCombineNodes();
+				
 				treePanel.repaint();
+				
 				frame.setTitle(new File(treePanel.getTreeAtTxt().getTxtPath()).getName() + "[ "
 						+ treeAtTxt.treePositionAtTxt(allTreesAtTxt) + " ]");
+				
 				return true;
 			}
 			else
@@ -1085,19 +1094,24 @@ public class TreeEditorTool
 				treePanel.setTreeLists(treeLists);
 				treePanel.setNodes(nodes);
 				treePanel.setTreeAtTxt(treeAtTxt);
-				resetButtonstatus();
+//				resetButtonstatus();
 				treePanel.setSelectedNodes(-1);
 				treePanel.initCombineNodes();
-				treePanel.setTreeLists(treeLists);
-				treePanel.setNodes(nodes);
+//				treePanel.setTreeLists(treeLists);
+//				treePanel.setNodes(nodes);
 				treePanel.setHasModeified(hasModeified);
-				treePanel.setTreeAtTxt(treeAtTxt);
+//				treePanel.setTreeAtTxt(treeAtTxt);
+//				resetButtonstatus();
+//				treePanel.setSelectedNodes(-1);
+//				treePanel.initCombineNodes();
+				
 				resetButtonstatus();
-				treePanel.setSelectedNodes(-1);
-				treePanel.initCombineNodes();
+				
 				treePanel.repaint();
+				
 				frame.setTitle(new File(treePanel.getTreeAtTxt().getTxtPath()).getName() + "[ "
 						+ treeAtTxt.treePositionAtTxt(allTreesAtTxt) + " ]");
+				
 				return true;
 			}
 			else
@@ -1106,8 +1120,11 @@ public class TreeEditorTool
 
 	}
 
+	// 打开括号表达式文件，读入括号表达式
 	private void openTxts() throws IOException
 	{
+		JFileChooser fileChooser = new JFileChooser();
+		TxtFileFilter txtFileFilter = new TxtFileFilter();
 		fileChooser.addChoosableFileFilter(txtFileFilter);
 		fileChooser.setMultiSelectionEnabled(true);
 		if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
@@ -1142,8 +1159,9 @@ public class TreeEditorTool
 				}
 				br.close();
 
-				System.out.println(strOfaTxt);
+//				System.out.println(strOfaTxt);
 
+				// 一个文件中可能有多棵树
 				ArrayList<TreePanelNode> trees = new TreePanelNode().fromTextToTree(strOfaTxt);
 				hasModeified.put(file.toString(), Boolean.FALSE);
 
@@ -1178,6 +1196,7 @@ public class TreeEditorTool
 	private boolean saveTreesToTxt(String currentTxtPath) throws IOException {
 		if (currentTxtPath == null) {
 			SimpleDateFormat date = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
+			JFileChooser fileChooser = new JFileChooser();
 			fileChooser.setSelectedFile(new File(date.format(new Date()) + ".txt"));
 			if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {// 确定保存
 				currentTxtPath = fileChooser.getSelectedFile().toString();
@@ -1238,6 +1257,7 @@ public class TreeEditorTool
 			}
 		}
 	}
+	
 	private void coreNLPInit()
 	{
 		Properties props = new Properties();
@@ -1252,8 +1272,6 @@ public class TreeEditorTool
 		}
 
 		pipeline = new StanfordCoreNLP(props);
-		// annotation = new Annotation("句法分析。");
-		// pipeline.annotate(annotation);
 	}
 
 	public static void main(String args[])

@@ -2,10 +2,12 @@ package com.lc.nlp4han.tools.pst;
 
 import java.util.ArrayList;
 
+//一个括号表达式对应一个TreeAtTxt对象
 public class TreeAtTxt
 {
-	// 一个括号表达式对应一个TreeAtTxt对象
 	private ArrayList<TreePanelNode> treeListWithOneTree;// 只有一颗树的森林，用来表示某个txt文件中的一个由括号表达式表示的树
+	
+	// 树所在的文件
 	private String txtPath;
 
 	public TreeAtTxt()
