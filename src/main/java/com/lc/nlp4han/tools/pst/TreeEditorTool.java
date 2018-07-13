@@ -68,7 +68,7 @@ public class TreeEditorTool
 //	private JButton updateBracketButton = new JButton("更新表达式");
 //	private JButton parseButton = new JButton("句法分析");
 
-//	private JFileChooser fileChooser = new JFileChooser();
+	private JFileChooser fileChooser = new JFileChooser();
 //	private TxtFileFilter txtFileFilter = new TxtFileFilter();
 
 	private static String charsetName = "GBK";// 默认读取文本编码为gbk
@@ -399,7 +399,7 @@ public class TreeEditorTool
 						int count = 0;
 						SimpleDateFormat date = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
 //						System.out.println(date.format(new Date()) + ".txt");
-						JFileChooser fileChooser = new JFileChooser();
+//						JFileChooser fileChooser = new JFileChooser();
 						fileChooser.setSelectedFile(new File(date.format(new Date()) + ".txt"));
 						if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
 						{// 确定保存
@@ -592,7 +592,7 @@ public class TreeEditorTool
 						int count = 0;
 						SimpleDateFormat date = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
 //						System.out.println(date.format(new Date()) + ".txt");
-						JFileChooser fileChooser = new JFileChooser();
+//						JFileChooser fileChooser = new JFileChooser();
 						fileChooser.setSelectedFile(new File(date.format(new Date()) + ".txt"));
 						if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
 						{// 确定保存
@@ -1123,7 +1123,7 @@ public class TreeEditorTool
 	// 打开括号表达式文件，读入括号表达式
 	private void openTxts() throws IOException
 	{
-		JFileChooser fileChooser = new JFileChooser();
+//		JFileChooser fileChooser = new JFileChooser();
 		TxtFileFilter txtFileFilter = new TxtFileFilter();
 		fileChooser.addChoosableFileFilter(txtFileFilter);
 		fileChooser.setMultiSelectionEnabled(true);
@@ -1196,7 +1196,7 @@ public class TreeEditorTool
 	private boolean saveTreesToTxt(String currentTxtPath) throws IOException {
 		if (currentTxtPath == null) {
 			SimpleDateFormat date = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
-			JFileChooser fileChooser = new JFileChooser();
+//			JFileChooser fileChooser = new JFileChooser();
 			fileChooser.setSelectedFile(new File(date.format(new Date()) + ".txt"));
 			if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {// 确定保存
 				currentTxtPath = fileChooser.getSelectedFile().toString();
