@@ -15,7 +15,6 @@ public class TxtFileFilter extends FileFilter
 	}
 
 	@Override
-
 	public String getDescription()
 	{
 		return "*.txt";
